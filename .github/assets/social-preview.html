@@ -1,0 +1,52 @@
+<!doctype html>
+<!--
+  Source for site/social-preview.png (1280x640, og:image / twitter:image / GitHub social preview).
+  Numbers come from the README sample run. Re-render with:
+    google-chrome --headless --disable-gpu --hide-scrollbars --force-device-scale-factor=1 \
+      --window-size=1280,640 --screenshot=site/social-preview.png .github/assets/social-preview.html
+-->
+<html><head><meta charset="utf-8">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:1280px;height:640px;overflow:hidden}
+body{background:radial-gradient(900px 520px at 85% -10%,rgba(74,222,128,.20),transparent 60%),radial-gradient(700px 420px at -5% 110%,rgba(163,230,53,.10),transparent 60%),#07090a;color:#e7efe9;font-family:Inter,sans-serif;-webkit-font-smoothing:antialiased;display:grid;grid-template-columns:540px 1fr;gap:44px;padding:64px 64px 56px 72px;align-items:center}
+.brand{display:flex;align-items:center;gap:18px;font-weight:800;font-size:58px;letter-spacing:-.035em}
+.brand svg{width:72px;height:72px}
+.goal{margin-top:30px;font-size:29px;line-height:1.32;font-weight:600;letter-spacing:-.01em;color:#e7efe9}
+.goal em{font-style:normal;background:linear-gradient(90deg,#4ade80,#a3e635);-webkit-background-clip:text;background-clip:text;color:transparent}
+.meta{margin-top:30px;font-family:"JetBrains Mono",monospace;font-size:17px;color:#8ea198;line-height:1.7}
+.meta b{color:#4ade80;font-weight:600}
+.term{background:#050706;border:1px solid #1d2a24;border-radius:16px;box-shadow:0 30px 80px -20px rgba(0,0,0,.85),0 0 70px -12px rgba(74,222,128,.22);overflow:hidden}
+.bar{display:flex;gap:8px;align-items:center;padding:13px 16px;border-bottom:1px solid #1d2a24;background:#0a0e0c}
+.bar i{width:12px;height:12px;border-radius:50%;display:block}
+.bar i:nth-child(1){background:#f8717199}.bar i:nth-child(2){background:#fbbf2499}.bar i:nth-child(3){background:#4ade8099}
+.bar span{margin-left:10px;font-family:"JetBrains Mono",monospace;font-size:13px;color:#8ea198}
+pre{font-family:"JetBrains Mono",monospace;font-size:16.5px;line-height:1.62;color:#cfe0d6;padding:18px 22px 20px;white-space:pre}
+.d{color:#5c6f66}.h{color:#9fb3a9}.p{color:#4ade80;font-weight:700}.w{color:#fbbf24;font-weight:700}.f{color:#f87171;font-weight:700}.s{color:#6b7f76;font-weight:700}.c{color:#fff}
+.v{color:#fff;background:#7f1d1d;padding:1px 6px;border-radius:4px;font-weight:700}
+</style></head>
+<body>
+<div>
+  <div class="brand"><svg viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#0b0f0c" stroke="#1d2a24"/><path d="M14 22l12 10-12 10" fill="none" stroke="#4ade80" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/><path d="M32 44h18" stroke="#4ade80" stroke-width="6" stroke-linecap="round"/><circle cx="46" cy="18" r="5" fill="#a3e635" opacity=".7"/><circle cx="53" cy="10" r="3" fill="#a3e635" opacity=".45"/></svg>toolsmoke</div>
+  <p class="goal">Tell you in one command whether your LLM endpoint <em>actually works for agents</em> (tool calling, streaming, structured output) and how fast it is.</p>
+  <p class="meta"><b>31 probes</b> · pass / warn / fail · exit code<br>OpenAI &amp; Anthropic APIs · zero dependencies</p>
+</div>
+<div class="term">
+  <div class="bar"><i></i><i></i><i></i><span>llama.cpp · Qwen2.5-0.5B · real run</span></div>
+<pre><span class="p">$</span> <span class="c">toolsmoke --base-url …/v1 --model qwen</span>
+  <span class="h">PROBE                   RESULT    TIME</span>
+  tools.single            <span class="p">PASS</span>  <span class="d"> 499ms</span>
+  tools.parallel          <span class="p">PASS</span>  <span class="d">  1.0s</span>
+  tools.choice_required   <span class="f">FAIL</span>  <span class="d"> 20.4s</span>
+  tools.choice_named      <span class="f">FAIL</span>  <span class="d"> 473ms</span>
+  stream.tools            <span class="p">PASS</span>  <span class="d"> 485ms</span>
+  json.schema             <span class="p">PASS</span>  <span class="d">  1.4s</span>
+  errors.bad_model        <span class="w">WARN</span>  <span class="d"> 127ms</span>
+  anthropic.tools         <span class="p">PASS</span>  <span class="d"> 519ms</span>
+  <span class="d">…</span>
+
+  <span class="h">TTFT p50</span> 22 ms <span class="d">·</span> 62.4 tok/s
+  <span class="p">24 pass</span> <span class="d">·</span> <span class="w">2 warn</span> <span class="d">·</span> <span class="f">3 fail</span> <span class="d">·</span> <span class="s">2 skip</span>
+  <span class="v">NOT AGENT-READY: 3 failing probes</span></pre>
+</div>
+</body></html>
