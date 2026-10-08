@@ -8,6 +8,8 @@ copyright: MIT © 2026 Blackman99
 
 theme:
   name: material
+  custom_dir: overrides
+  favicon: assets/favicon.svg
   palette:
     - media: "(prefers-color-scheme: dark)"
       scheme: slate

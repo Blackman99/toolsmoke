@@ -8,3 +8,7 @@ _site/
 .pytest_cache/
 .ruff_cache/
 toolsmoke-report.json
+
+# local-only: OG regeneration script (uses /workspace/oss-factory/_templates/og) and GitHub social preview upload file
+og.sh
+og-social-preview.png
