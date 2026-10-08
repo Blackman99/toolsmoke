@@ -1,5 +1,5 @@
 name: "toolsmoke"
-description: "Check that an LLM endpoint really works for agents (tool calling, streaming, structured output) and measure TTFT and tokens/sec."
+description: "Check that an LLM endpoint really works for agents: tool calling, streaming, structured output, speed."
 author: "Blackman99"
 branding:
   icon: "check-circle"

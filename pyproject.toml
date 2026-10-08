@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "toolsmoke"
-version = "0.1.0"
+version = "0.1.1"
 description = "Tell you in one command whether your LLM endpoint actually works for agents (tool calling, streaming, structured output) and how fast it is."
 readme = "README.md"
 requires-python = ">=3.9"

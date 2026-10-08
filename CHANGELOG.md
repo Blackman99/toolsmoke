@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.1.1 — 2026-10-08
+
+- Shorten the GitHub Action description to meet the Marketplace limit so the Action can be published to the GitHub Marketplace.
+
 ## v0.1.0 — 2026-10-08
 
 First release.
