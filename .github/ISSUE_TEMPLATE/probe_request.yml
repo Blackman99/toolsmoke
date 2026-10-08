@@ -1,0 +1,20 @@
+name: Probe request
+description: Suggest a new check for an agent feature or a server quirk
+labels: [probe-request]
+body:
+  - type: textarea
+    id: behaviour
+    attributes:
+      label: What behaviour should be checked?
+      description: Which agent feature breaks, and how does it show up in real agent loops?
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence
+      description: Links to issues, logs, or request/response examples from real servers.
+  - type: textarea
+    id: pass
+    attributes:
+      label: What counts as pass / warn / fail?

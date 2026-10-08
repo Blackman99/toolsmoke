@@ -1,0 +1,142 @@
+name: "toolsmoke"
+description: "Check that an LLM endpoint really works for agents (tool calling, streaming, structured output) and measure TTFT and tokens/sec."
+author: "Blackman99"
+branding:
+  icon: "check-circle"
+  color: "green"
+
+inputs:
+  base-url:
+    description: "OpenAI-compatible base URL, e.g. http://localhost:8080/v1"
+    required: true
+  model:
+    description: "Model name to request"
+    required: true
+  api-key:
+    description: "API key (pass a secret, e.g. ${{ secrets.LLM_API_KEY }}). Leave empty for unauthenticated local servers."
+    required: false
+    default: ""
+  anthropic:
+    description: "Also probe the Anthropic Messages API (true/false)"
+    required: false
+    default: "false"
+  only:
+    description: "Comma-separated probe id/group globs to run, e.g. 'tools.*,stream.*'"
+    required: false
+    default: ""
+  skip:
+    description: "Comma-separated probe id/group globs to skip"
+    required: false
+    default: ""
+  strict:
+    description: "Treat warnings as failures (true/false)"
+    required: false
+    default: "false"
+  max-ttft:
+    description: "Fail if median time-to-first-token exceeds this many milliseconds"
+    required: false
+    default: ""
+  min-tps:
+    description: "Fail if decode speed is below this many tokens/sec"
+    required: false
+    default: ""
+  args:
+    description: "Extra raw arguments for the toolsmoke CLI"
+    required: false
+    default: ""
+  report:
+    description: "Path for the JSON report"
+    required: false
+    default: "toolsmoke-report.json"
+  fail-on-error:
+    description: "Fail the step when toolsmoke reports failures (true/false)"
+    required: false
+    default: "true"
+  python-version:
+    description: "Python version used to run toolsmoke"
+    required: false
+    default: "3.12"
+
+outputs:
+  verdict:
+    description: "Human-readable verdict, e.g. 'AGENT-READY'"
+    value: ${{ steps.run.outputs.verdict }}
+  passed:
+    description: "Number of passing probes"
+    value: ${{ steps.run.outputs.passed }}
+  warned:
+    description: "Number of probes with warnings"
+    value: ${{ steps.run.outputs.warned }}
+  failed:
+    description: "Number of failing probes"
+    value: ${{ steps.run.outputs.failed }}
+  ttft-ms:
+    description: "Median time to first token (ms)"
+    value: ${{ steps.run.outputs.ttft_ms }}
+  tokens-per-sec:
+    description: "Decode speed (tokens/sec)"
+    value: ${{ steps.run.outputs.tokens_per_sec }}
+  report:
+    description: "Path of the JSON report"
+    value: ${{ inputs.report }}
+  exit-code:
+    description: "toolsmoke exit code (0 ok, 1 failures, 2 usage/connection error)"
+    value: ${{ steps.run.outputs.exit_code }}
+
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/setup-python@v7
+      with:
+        python-version: ${{ inputs.python-version }}
+
+    - name: Install toolsmoke
+      shell: bash
+      run: python -m pip install --quiet --disable-pip-version-check "$GITHUB_ACTION_PATH"
+
+    - name: Run toolsmoke
+      id: run
+      shell: bash
+      env:
+        TOOLSMOKE_API_KEY: ${{ inputs.api-key }}
+        IN_BASE_URL: ${{ inputs.base-url }}
+        IN_MODEL: ${{ inputs.model }}
+        IN_ANTHROPIC: ${{ inputs.anthropic }}
+        IN_ONLY: ${{ inputs.only }}
+        IN_SKIP: ${{ inputs.skip }}
+        IN_STRICT: ${{ inputs.strict }}
+        IN_MAX_TTFT: ${{ inputs.max-ttft }}
+        IN_MIN_TPS: ${{ inputs.min-tps }}
+        IN_ARGS: ${{ inputs.args }}
+        IN_REPORT: ${{ inputs.report }}
+        IN_FAIL: ${{ inputs.fail-on-error }}
+        NO_COLOR: "1"
+      run: |
+        args=(--base-url "$IN_BASE_URL" --model "$IN_MODEL" --json "$IN_REPORT" --markdown "$GITHUB_STEP_SUMMARY" --quiet)
+        [ "$IN_ANTHROPIC" = "true" ] && args+=(--anthropic)
+        [ "$IN_STRICT" = "true" ] && args+=(--strict)
+        [ -n "$IN_MAX_TTFT" ] && args+=(--max-ttft "$IN_MAX_TTFT")
+        [ -n "$IN_MIN_TPS" ] && args+=(--min-tps "$IN_MIN_TPS")
+        IFS=',' read -ra only <<< "$IN_ONLY"; for g in "${only[@]}"; do [ -n "$g" ] && args+=(--only "$g"); done
+        IFS=',' read -ra skip <<< "$IN_SKIP"; for g in "${skip[@]}"; do [ -n "$g" ] && args+=(--skip "$g"); done
+        # shellcheck disable=SC2206
+        [ -n "$IN_ARGS" ] && args+=($IN_ARGS)
+        set +e
+        toolsmoke "${args[@]}"
+        code=$?
+        set -e
+        echo "exit_code=$code" >> "$GITHUB_OUTPUT"
+        if [ -f "$IN_REPORT" ]; then
+          python - "$IN_REPORT" >> "$GITHUB_OUTPUT" <<'PY'
+        import json, sys
+        r = json.load(open(sys.argv[1]))
+        s, p = r["summary"], r["performance"]
+        print(f"verdict={r['verdict']}")
+        print(f"passed={s['pass']}\nwarned={s['warn']}\nfailed={s['fail']}")
+        print(f"ttft_ms={p['ttft_ms_p50'] if p['ttft_ms_p50'] is not None else ''}")
+        print(f"tokens_per_sec={p['tokens_per_sec'] if p['tokens_per_sec'] is not None else ''}")
+        PY
+        fi
+        if [ "$code" -ne 0 ] && [ "$IN_FAIL" = "true" ]; then exit "$code"; fi
+        if [ "$code" -eq 2 ]; then exit 2; fi
+        exit 0

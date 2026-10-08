@@ -1,0 +1,101 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: test (${{ matrix.os }}, py${{ matrix.python }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+        python: ["3.9", "3.10", "3.11", "3.12", "3.13"]
+        include:
+          - os: macos-latest
+            python: "3.12"
+          - os: windows-latest
+            python: "3.12"
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: ${{ matrix.python }}
+      - run: python -m pip install -e ".[dev]"
+      - run: python -m pytest -q
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - run: pip install ruff
+      - run: ruff check src tests --select F,E9
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - run: pip install build && python -m build
+      - name: Install the wheel in a clean venv and smoke-test it
+        run: |
+          python -m venv /tmp/v && /tmp/v/bin/pip install dist/*.whl
+          /tmp/v/bin/toolsmoke --version
+          /tmp/v/bin/toolsmoke --demo good --quiet --perf-runs 1
+
+  action:
+    name: GitHub Action self-test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - name: Start mock servers (good on 8765, broken on 8766)
+        run: |
+          pip install -e .
+          nohup toolsmoke-mock --port 8765 --mode good --api-key sk-ci > good.log 2>&1 &
+          nohup toolsmoke-mock --port 8766 --mode broken > broken.log 2>&1 &
+          sleep 2 && curl -sf http://127.0.0.1:8765/v1/models -H "Authorization: Bearer sk-ci"
+      - name: Good endpoint passes
+        id: good
+        uses: ./
+        with:
+          base-url: http://127.0.0.1:8765/v1
+          model: mock-model
+          api-key: sk-ci
+          anthropic: "true"
+          strict: "true"
+      - name: Broken endpoint is caught
+        id: broken
+        uses: ./
+        with:
+          base-url: http://127.0.0.1:8766/v1
+          model: mock-model
+          anthropic: "true"
+          fail-on-error: "false"
+          report: broken.json
+      - name: Assert outputs
+        env:
+          GOOD_FAILED: ${{ steps.good.outputs.failed }}
+          GOOD_VERDICT: ${{ steps.good.outputs.verdict }}
+          BROKEN_FAILED: ${{ steps.broken.outputs.failed }}
+          BROKEN_CODE: ${{ steps.broken.outputs.exit-code }}
+        run: |
+          echo "good: $GOOD_VERDICT ($GOOD_FAILED failed); broken: $BROKEN_FAILED failed, exit $BROKEN_CODE"
+          test "$GOOD_FAILED" = "0"
+          test "$GOOD_VERDICT" = "AGENT-READY"
+          test "$BROKEN_FAILED" -gt 0
+          test "$BROKEN_CODE" = "1"

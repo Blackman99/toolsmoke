@@ -1,0 +1,57 @@
+site_name: toolsmoke docs
+site_description: Tell you in one command whether your LLM endpoint actually works for agents (tool calling, streaming, structured output) and how fast it is.
+site_url: https://blackman99.github.io/toolsmoke/docs/
+repo_url: https://github.com/Blackman99/toolsmoke
+repo_name: Blackman99/toolsmoke
+edit_uri: edit/main/docs/
+copyright: MIT © 2026 Blackman99
+
+theme:
+  name: material
+  palette:
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: black
+      accent: light green
+      toggle: {icon: material/weather-sunny, name: Light mode}
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: black
+      accent: green
+      toggle: {icon: material/weather-night, name: Dark mode}
+  font:
+    text: Inter
+    code: JetBrains Mono
+  icon:
+    logo: material/fire
+  features:
+    - navigation.instant
+    - navigation.sections
+    - navigation.top
+    - content.code.copy
+    - search.highlight
+    - toc.follow
+
+nav:
+  - Overview: index.md
+  - Install: install.md
+  - Usage: usage.md
+  - Probe reference: probes.md
+  - Configuration: configuration.md
+  - CI & GitHub Action: github-action.md
+  - FAQ: faq.md
+  - Home page ↗: https://blackman99.github.io/toolsmoke/
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.details
+  - pymdownx.highlight
+  - pymdownx.inlinehilite
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true

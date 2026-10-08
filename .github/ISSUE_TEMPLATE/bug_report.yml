@@ -1,0 +1,42 @@
+name: Bug / false positive
+description: toolsmoke reported something wrong, crashed, or misjudged an endpoint
+labels: [bug]
+body:
+  - type: input
+    id: server
+    attributes:
+      label: Server and version
+      placeholder: "vLLM 0.11.0 / llama.cpp b11490 / Ollama 0.12 / hosted provider…"
+    validations:
+      required: true
+  - type: input
+    id: model
+    attributes:
+      label: Model
+      placeholder: "Qwen3-8B-Instruct"
+    validations:
+      required: true
+  - type: input
+    id: command
+    attributes:
+      label: Command you ran
+      placeholder: "toolsmoke --base-url http://localhost:8000/v1 --model qwen3"
+    validations:
+      required: true
+  - type: textarea
+    id: output
+    attributes:
+      label: Output
+      description: The table output, or better, `--format json` (remove secrets).
+      render: text
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected
+  - type: input
+    id: version
+    attributes:
+      label: toolsmoke version
+      placeholder: "toolsmoke --version"

@@ -1,0 +1,44 @@
+[build-system]
+requires = ["hatchling>=1.18"]
+build-backend = "hatchling.build"
+
+[project]
+name = "toolsmoke"
+version = "0.1.0"
+description = "Tell you in one command whether your LLM endpoint actually works for agents (tool calling, streaming, structured output) and how fast it is."
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+authors = [{ name = "Blackman99" }]
+keywords = ["llm", "openai", "anthropic", "tool-calling", "function-calling", "agents", "llama.cpp", "vllm", "ollama", "conformance", "benchmark"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Environment :: Console",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Topic :: Software Development :: Testing",
+]
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["pytest>=7"]
+
+[project.urls]
+Homepage = "https://blackman99.github.io/toolsmoke/"
+Documentation = "https://blackman99.github.io/toolsmoke/docs/"
+Source = "https://github.com/Blackman99/toolsmoke"
+Issues = "https://github.com/Blackman99/toolsmoke/issues"
+
+[project.scripts]
+toolsmoke = "toolsmoke.cli:main"
+toolsmoke-mock = "toolsmoke.mock:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/toolsmoke"]
+
+[tool.hatch.build.targets.sdist]
+include = ["src", "tests", "README.md", "LICENSE", "pyproject.toml"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
