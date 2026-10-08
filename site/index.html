@@ -41,7 +41,7 @@
 <main>
 <section class="hero">
   <div class="hero-text">
-    <p class="eyebrow">v0.1.0 · MIT · zero dependencies</p>
+    <p class="eyebrow">v0.1.1 · MIT · zero dependencies</p>
     <h1><span class="nw">“OpenAI&#8209;compatible”</span> <span class="strike">isn't</span> <span class="hl">agent-ready.</span></h1>
     <p class="lede">Your server answers chat. But does it return real <code>tool_calls</code> instead of <code>&lt;tool_call&gt;</code> text? Enforce <code>tool_choice</code>? Stream tool arguments that parse? Respect a JSON schema? Keep <code>&lt;think&gt;</code> out of the answer?</p>
     <p class="lede strong">toolsmoke tells you in one command, and measures how fast it is.</p>
@@ -62,6 +62,12 @@
   <div class="pain"><b>Tool calls leak as text</b><p>The parser misses the model's format and <code>&lt;tool_call&gt;{…}</code> lands in <code>content</code>. Your agent sees prose, never calls the tool.</p><a href="https://github.com/ollama/ollama/issues/11621">ollama#11621</a></div>
   <div class="pain"><b>Streaming breaks tools</b><p>Non-streaming works, but streamed <code>tool_calls</code> deltas never arrive, or arrive merged and unparsable.</p><a href="https://github.com/vllm-project/vllm/issues/22403">vllm#22403</a></div>
   <div class="pain"><b>Templates drop tool results</b><p>The second turn silently loses the tool output, so the model loops or hallucinates.</p><a href="https://github.com/ggml-org/llama.cpp/issues/15012">llama.cpp#15012</a></div>
+</section>
+
+<section class="demo" id="demo">
+  <h2>Try it without a model</h2>
+  <p class="sub"><code>toolsmoke --demo broken</code> starts a built-in mock server with the common failure modes switched on. <code>--demo good</code> shows what a clean pass looks like.</p>
+  <img class="demo-gif" src="demo.gif" width="1180" height="900" loading="lazy" alt="Terminal recording: toolsmoke --demo broken reports 13 failing probes, then toolsmoke --demo good passes every tool, streaming and JSON probe and prints AGENT-READY">
 </section>
 
 <section id="probes" class="probes">
@@ -91,7 +97,7 @@
     --base-url http://localhost:8080/v1 --model qwen3</code></pre><button class="copy">Copy</button></div>
   <div class="panel" id="tab-pipx"><pre><code>pipx install git+https://github.com/Blackman99/toolsmoke
 OPENAI_API_KEY=sk-... toolsmoke --base-url https://api.example.com/v1 --model my-model --anthropic</code></pre><button class="copy">Copy</button></div>
-  <div class="panel" id="tab-action"><pre><code>- uses: Blackman99/toolsmoke@v0.1.0
+  <div class="panel" id="tab-action"><pre><code>- uses: Blackman99/toolsmoke@v0.1.1
   with:
     base-url: https://llm.example.com/v1
     model: qwen3-coder

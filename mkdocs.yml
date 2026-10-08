@@ -41,6 +41,10 @@ nav:
   - Configuration: configuration.md
   - CI & GitHub Action: github-action.md
   - FAQ: faq.md
+  - Blog:
+    - All posts: blog/index.md
+    - "Tool calling breaks silently": blog/tool-calling-breaks-silently.md
+    - "工具调用为什么会悄悄失效": blog/tool-calling-breaks-silently-zh.md
   - Home page ↗: https://blackman99.github.io/toolsmoke/
 
 markdown_extensions:

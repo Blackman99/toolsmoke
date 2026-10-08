@@ -81,3 +81,15 @@ def test_logo_copies_match_canonical():
     assert "logo: assets/logo.svg" in _read("mkdocs.yml") and "favicon: assets/logo.svg" in _read("mkdocs.yml")
     assert 'src="assets/logo.svg"' in _read("README.md")
     assert (ROOT / "assets" / "logo-512.png").read_bytes()[16:24] == (512).to_bytes(4, "big") * 2
+
+
+def test_blog_excerpts_match_readme(sample):
+    posts = sorted((ROOT / "docs" / "blog").glob("*.md"))
+    for post in posts:
+        text = post.read_text(encoding="utf-8")
+        if "```console" not in text:
+            continue
+        for line in _console(text):
+            if line.strip() in ("", "..."):
+                continue
+            assert line in sample["lines"], f"{post.name} line not in README sample: {line!r}"

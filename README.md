@@ -4,6 +4,8 @@
 
 **Tell you in one command whether your LLM endpoint actually works for agents (tool calling, streaming, structured output) and how fast it is.**
 
+<p align="center"><img src="site/demo.gif" width="880" alt="toolsmoke --demo broken finds 13 failing probes; --demo good passes and prints AGENT-READY"></p>
+
 Every "OpenAI-compatible" server answers a plain chat request. Agents need more: structured `tool_calls` instead of `<tool_call>` text in `content`, `tool_choice` that is enforced, streamed tool-call deltas that assemble into valid JSON, JSON-schema output, reasoning kept out of the answer, tool results that survive the chat template. When one of these is broken (see [ollama#11621](https://github.com/ollama/ollama/issues/11621), [vllm#22403](https://github.com/vllm-project/vllm/issues/22403), [llama.cpp#15012](https://github.com/ggml-org/llama.cpp/issues/15012)), your agent fails somewhere far from the cause. toolsmoke runs 31 small probes against your endpoint (OpenAI chat completions, optionally Anthropic Messages) and gives you a pass/warn/fail verdict, time-to-first-token, tokens/sec and an exit code.
 
 ## Install

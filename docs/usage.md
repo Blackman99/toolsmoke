@@ -82,7 +82,7 @@ JSON report shape:
 
 ```json
 {
-  "tool": "toolsmoke", "version": "0.1.0",
+  "tool": "toolsmoke", "version": "0.1.1",
   "endpoint": "http://localhost:8080/v1", "model": "qwen", "anthropic": true,
   "summary": {"pass": 24, "warn": 2, "fail": 3, "skip": 2},
   "performance": {"ttft_ms_p50": 22.0, "tokens_per_sec": 62.4},

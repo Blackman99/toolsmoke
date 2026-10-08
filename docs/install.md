@@ -8,10 +8,10 @@ toolsmoke is a single pure-Python package with **zero runtime dependencies**. Py
 uvx --from git+https://github.com/Blackman99/toolsmoke toolsmoke --demo broken
 ```
 
-Pin a version with `@v0.1.0`:
+Pin a version with `@v0.1.1`:
 
 ```bash
-uvx --from git+https://github.com/Blackman99/toolsmoke@v0.1.0 toolsmoke --help
+uvx --from git+https://github.com/Blackman99/toolsmoke@v0.1.1 toolsmoke --help
 ```
 
 ## Install as a command
@@ -31,7 +31,7 @@ uvx --from git+https://github.com/Blackman99/toolsmoke@v0.1.0 toolsmoke --help
 === "release wheel"
 
     ```bash
-    pipx install https://github.com/Blackman99/toolsmoke/releases/download/v0.1.0/toolsmoke-0.1.0-py3-none-any.whl
+    pipx install https://github.com/Blackman99/toolsmoke/releases/download/v0.1.1/toolsmoke-0.1.1-py3-none-any.whl
     ```
 
 === "pip"

@@ -5,7 +5,7 @@ Gate a deployment, a model upgrade or a gateway config change on agent-readiness
 ## Reusable action
 
 ```yaml
-- uses: Blackman99/toolsmoke@v0.1.0
+- uses: Blackman99/toolsmoke@v0.1.1
   with:
     base-url: https://llm.internal.example.com/v1
     model: qwen3-coder
@@ -53,7 +53,7 @@ jobs:
           nohup ./llama-b11490/llama-server -m model.gguf --jinja --port 8080 --alias qwen &
           until curl -sf localhost:8080/health; do sleep 1; done
       - id: smoke
-        uses: Blackman99/toolsmoke@v0.1.0
+        uses: Blackman99/toolsmoke@v0.1.1
         with:
           base-url: http://localhost:8080/v1
           model: qwen
@@ -72,7 +72,7 @@ jobs:
   smoke:
     runs-on: ubuntu-latest
     steps:
-      - uses: Blackman99/toolsmoke@v0.1.0
+      - uses: Blackman99/toolsmoke@v0.1.1
         with:
           base-url: https://openrouter.ai/api/v1
           model: qwen/qwen3-coder
@@ -85,7 +85,7 @@ jobs:
 Any CI works, it's one command and an exit code:
 
 ```bash
-uvx --from git+https://github.com/Blackman99/toolsmoke@v0.1.0 toolsmoke \
+uvx --from git+https://github.com/Blackman99/toolsmoke@v0.1.1 toolsmoke \
   --base-url "$LLM_URL" --model "$LLM_MODEL" --json report.json --markdown summary.md
 ```
 
