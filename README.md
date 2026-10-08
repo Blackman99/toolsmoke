@@ -1,3 +1,5 @@
+<p align="center"><img src="assets/logo.svg" width="112" height="112" alt="toolsmoke logo"></p>
+
 # toolsmoke
 
 **Tell you in one command whether your LLM endpoint actually works for agents (tool calling, streaming, structured output) and how fast it is.**

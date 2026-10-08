@@ -72,3 +72,12 @@ def test_probe_counts_and_json_example_match_readme(sample):
     usage = _read("docs/usage.md")
     assert f'"summary": {{"pass": {p}, "warn": {w}, "fail": {f}, "skip": {s}}}' in usage
     assert f'"performance": {{"ttft_ms_p50": {float(ttft)}, "tokens_per_sec": {tps}}}' in usage
+
+
+def test_logo_copies_match_canonical():
+    logo = _read("assets/logo.svg")
+    assert _read("site/favicon.svg") == logo, "site/favicon.svg must be a copy of assets/logo.svg"
+    assert _read("docs/assets/logo.svg") == logo, "docs/assets/logo.svg must be a copy of assets/logo.svg"
+    assert "logo: assets/logo.svg" in _read("mkdocs.yml") and "favicon: assets/logo.svg" in _read("mkdocs.yml")
+    assert 'src="assets/logo.svg"' in _read("README.md")
+    assert (ROOT / "assets" / "logo-512.png").read_bytes()[16:24] == (512).to_bytes(4, "big") * 2

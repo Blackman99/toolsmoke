@@ -9,7 +9,8 @@ copyright: MIT © 2026 Blackman99
 theme:
   name: material
   custom_dir: overrides
-  favicon: assets/favicon.svg
+  favicon: assets/logo.svg
+  logo: assets/logo.svg
   palette:
     - media: "(prefers-color-scheme: dark)"
       scheme: slate
@@ -24,8 +25,6 @@ theme:
   font:
     text: Inter
     code: JetBrains Mono
-  icon:
-    logo: material/fire
   features:
     - navigation.instant
     - navigation.sections
