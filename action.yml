@@ -13,7 +13,7 @@ inputs:
     description: "Model name to request"
     required: true
   api-key:
-    description: "API key (pass a secret, e.g. ${{ secrets.LLM_API_KEY }}). Leave empty for unauthenticated local servers."
+    description: "API key; pass it from a repository secret. Leave empty for unauthenticated local servers."
     required: false
     default: ""
   anthropic:

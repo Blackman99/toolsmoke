@@ -103,7 +103,19 @@ def start_demo(mode: str):
     return server, f"http://127.0.0.1:{server.server_address[1]}/v1"
 
 
+def _safe_streams() -> None:
+    # Windows consoles/redirects may not be UTF-8; never crash on "·" or emoji.
+    for stream in (sys.stdout, sys.stderr):
+        enc = (getattr(stream, "encoding", None) or "").lower().replace("-", "")
+        if enc != "utf8" and hasattr(stream, "reconfigure"):
+            try:
+                stream.reconfigure(errors="replace")
+            except Exception:
+                pass
+
+
 def main(argv: Optional[List[str]] = None) -> int:
+    _safe_streams()
     parser = build_parser()
     a = parser.parse_args(argv)
 

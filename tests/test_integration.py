@@ -31,7 +31,7 @@ def run(tmp_path, url, *extra, env_key=None, monkeypatch=None):
     out = tmp_path / "r.json"
     code = cli.main(["--base-url", url, "--model", "mock-model", "--anthropic", "--quiet", "--perf-runs", "1",
                      "--json", str(out), *extra])
-    return code, json.loads(out.read_text())
+    return code, json.loads(out.read_text(encoding="utf-8"))
 
 
 def test_good_server_is_agent_ready(tmp_path, good_server, monkeypatch, capsys):
@@ -102,4 +102,4 @@ def test_markdown_and_json_stdout(tmp_path, good_server, monkeypatch, capsys):
     assert cli.main(["--base-url", good_server, "--model", "mock-model", "--only", "chat.*", "--format", "json", "--markdown", str(md)]) == 0
     data = json.loads(capsys.readouterr().out)
     assert data["summary"]["pass"] == 5
-    assert "| `chat.basic` | ✅ PASS |" in md.read_text()
+    assert "| `chat.basic` | ✅ PASS |" in md.read_text(encoding="utf-8")
