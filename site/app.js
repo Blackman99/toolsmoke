@@ -31,7 +31,7 @@ async function play(){
     }
     await sleep(350);
   }
-  html += `<span class="t-cmd">${esc(CMD)}</span>\n<span class="t-dim">toolsmoke 0.1.0 · http://localhost:8080/v1 · model qwen</span>\n\n  <span class="t-head">${pad("PROBE",22)} RESULT   TIME  DETAIL</span>\n`;
+  html += `<span class="t-cmd">${esc(CMD)}</span>\n<span class="t-dim">toolsmoke 0.1.0 · http://localhost:8080/v1 · model qwen</span>\n\n  <span class="t-head">${pad("PROBE",22)} RESULT TIME  DETAIL</span>\n`;
   for (const r of ROWS) {
     if (me !== run) return;
     html += rowHTML(r);

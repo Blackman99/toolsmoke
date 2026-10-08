@@ -83,14 +83,14 @@ JSON report shape:
 ```json
 {
   "tool": "toolsmoke", "version": "0.1.0",
-  "endpoint": "http://localhost:8080/v1", "model": "qwen", "anthropic": false,
+  "endpoint": "http://localhost:8080/v1", "model": "qwen", "anthropic": true,
   "summary": {"pass": 24, "warn": 2, "fail": 3, "skip": 2},
-  "performance": {"ttft_ms_p50": 32.0, "tokens_per_sec": 63.3},
+  "performance": {"ttft_ms_p50": 22.0, "tokens_per_sec": 62.4},
   "verdict": "NOT AGENT-READY: 3 failing probes",
   "results": [
     {"id": "tools.single", "group": "tools", "title": "Single tool call (tool_choice=auto)",
-     "status": "pass", "detail": "get_weather({\"city\": \"Paris\"}) finish_reason=tool_calls",
-     "elapsed_ms": 2803.1, "metrics": {}}
+     "status": "pass", "detail": "get_weather({\"city\": \"Paris\", \"unit\": \"celsius\"}) finish_reason=tool_calls",
+     "elapsed_ms": 499.0, "metrics": {}}
   ]
 }
 ```

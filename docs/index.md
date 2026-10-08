@@ -4,7 +4,7 @@
 
 "OpenAI-compatible" servers (vLLM, llama.cpp, Ollama, LM Studio, SGLang, LiteLLM, hosted gateways…) all answer a plain chat request. Agents need much more: structured `tool_calls` instead of `<tool_call>` text in `content`, `tool_choice` that is actually enforced, streamed tool-call deltas that assemble into valid JSON, `response_format` schemas, reasoning kept out of the answer, and tool results that survive the chat template. When any of these is broken, agent frameworks fail in confusing ways far from the cause.
 
-toolsmoke sends ~30 small, deterministic requests and gives you a verdict:
+toolsmoke runs 31 small, deterministic probes and gives you a verdict (excerpt of the [README sample run](https://github.com/Blackman99/toolsmoke#usage)):
 
 ```console
 $ toolsmoke --base-url http://localhost:8080/v1 --model qwen --anthropic
