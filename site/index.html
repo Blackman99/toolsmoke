@@ -21,88 +21,165 @@
 <meta name="twitter:description" content="Tell you in one command whether your LLM endpoint actually works for agents (tool calling, streaming, structured output) and how fast it is.">
 <meta name="twitter:image" content="https://blackman99.github.io/toolsmoke/social-preview.png">
 <meta name="twitter:image:alt" content="toolsmoke: one command tells you whether your LLM endpoint works for agents, with a pass/warn/fail probe table">
-<meta name="theme-color" content="#0b0f0c">
+<meta name="theme-color" content="#060807">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preload" href="fonts/martian-mono.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/jetbrains-mono.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
+<a class="skip" href="#main">Skip to content</a>
 <header class="nav">
-  <a class="brand" href="#"><img src="favicon.svg" alt="" width="26" height="26"> toolsmoke</a>
-  <nav>
+  <a class="brand" href="#top" aria-label="toolsmoke home"><img src="favicon.svg" alt="" width="28" height="28"><span>toolsmoke</span></a>
+  <nav aria-label="Primary">
+    <a href="#leak">How it catches</a>
     <a href="#probes">Probes</a>
     <a href="#install">Install</a>
     <a href="docs/">Docs</a>
-    <a class="gh" href="https://github.com/Blackman99/toolsmoke" aria-label="GitHub">
-      <svg viewBox="0 0 16 16" width="18" height="18" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
-      GitHub</a>
+    <a class="gh" href="https://github.com/Blackman99/toolsmoke" aria-label="GitHub repository"><svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg><span>GitHub</span></a>
   </nav>
 </header>
 
-<main>
-<section class="hero">
-  <div class="hero-text">
-    <p class="eyebrow">v0.1.1 · MIT · zero dependencies</p>
-    <h1><span class="nw">“OpenAI&#8209;compatible”</span> <span class="strike">isn't</span> <span class="hl">agent-ready.</span></h1>
-    <p class="lede">Your server answers chat. But does it return real <code>tool_calls</code> instead of <code>&lt;tool_call&gt;</code> text? Enforce <code>tool_choice</code>? Stream tool arguments that parse? Respect a JSON schema? Keep <code>&lt;think&gt;</code> out of the answer?</p>
-    <p class="lede strong">toolsmoke tells you in one command, and measures how fast it is.</p>
-    <div class="cta">
-      <a class="btn primary" href="#install">Get started</a>
-      <a class="btn" href="docs/">Read the docs →</a>
+<main id="main">
+<section class="hero" id="top">
+  <div class="hero-copy">
+    <p class="eyebrow"><span class="lamp" aria-hidden="true"></span>smoke test for LLM endpoints · v0.1.1</p>
+    <h1><span class="q">“OpenAI&#8209;compatible”</span> <span class="no">isn't</span> <span class="hl">agent&#8209;ready.</span></h1>
+    <p class="lede">Your server answers chat. Agents need more: real <code>tool_calls</code> instead of <code>&lt;tool_call&gt;</code> text, an enforced <code>tool_choice</code>, streamed arguments that parse, JSON that fits the schema. toolsmoke runs 31 probes against your endpoint and gives you a pass/warn/fail verdict, time-to-first-token, tokens/sec and an exit code.</p>
+    <div class="cmd" data-copy>
+      <span class="cmd-label">try it without a model</span>
+      <code><span class="p">$</span> uvx --from git+https://github.com/Blackman99/toolsmoke toolsmoke --demo broken</code>
+      <button class="copy" type="button" aria-label="Copy command"><span>Copy</span></button>
     </div>
-    <div class="servers">Works with vLLM · llama.cpp · Ollama · LM Studio · SGLang · LiteLLM · OpenRouter · any <code>/v1/chat/completions</code> or <code>/v1/messages</code></div>
+    <div class="cta">
+      <a class="btn primary" href="#install">Run it on your endpoint</a>
+      <a class="btn" href="docs/">Read the docs <span aria-hidden="true">→</span></a>
+    </div>
+    <p class="servers">vLLM · llama.cpp · Ollama · LM Studio · SGLang · LiteLLM · OpenRouter · any <code>/v1/chat/completions</code> or <code>/v1/messages</code></p>
   </div>
 
-  <div class="terminal" id="terminal" aria-label="toolsmoke demo output">
-    <div class="term-bar"><span></span><span></span><span></span><em>llama.cpp b11490 · Qwen2.5-0.5B · real run</em><button id="replay" title="Replay">↻</button></div>
-    <pre class="term-body" id="term-body"></pre>
+  <div class="bench" id="bench" aria-label="Replay of a real toolsmoke run against llama.cpp">
+    <div class="bench-top">
+      <span class="status" id="status" data-state="idle"><i aria-hidden="true"></i><b id="status-text">ready</b></span>
+      <span class="bench-target">llama.cpp b11490 · Qwen2.5-0.5B · real run</span>
+      <button class="replay" id="replay" type="button" aria-label="Replay the run" title="Replay">↻</button>
+    </div>
+    <div class="leds" id="leds" aria-hidden="true"></div>
+    <div class="term" id="term" role="log" aria-live="off"><div class="tl"><span class="p">$</span> <span class="c">toolsmoke --base-url http://localhost:8080/v1 --model qwen --anthropic</span></div></div>
+    <div class="gauges">
+      <div class="g"><span>TTFT p50</span><b id="g-ttft">–</b></div>
+      <div class="g"><span>throughput</span><b id="g-tps">–</b></div>
+      <div class="g g-res"><span>results</span><div class="bar" id="g-bar" aria-hidden="true"><i class="bp"></i><i class="bw"></i><i class="bf"></i><i class="bs"></i></div><small id="g-counts">0 / 31</small></div>
+    </div>
+    <div class="stamp" id="stamp" aria-hidden="true">NOT AGENT&#8209;READY</div>
   </div>
 </section>
 
-<section class="pains">
-  <div class="pain"><b>Tool calls leak as text</b><p>The parser misses the model's format and <code>&lt;tool_call&gt;{…}</code> lands in <code>content</code>. Your agent sees prose, never calls the tool.</p><a href="https://github.com/ollama/ollama/issues/11621">ollama#11621</a></div>
-  <div class="pain"><b>Streaming breaks tools</b><p>Non-streaming works, but streamed <code>tool_calls</code> deltas never arrive, or arrive merged and unparsable.</p><a href="https://github.com/vllm-project/vllm/issues/22403">vllm#22403</a></div>
-  <div class="pain"><b>Templates drop tool results</b><p>The second turn silently loses the tool output, so the model loops or hallucinates.</p><a href="https://github.com/ggml-org/llama.cpp/issues/15012">llama.cpp#15012</a></div>
+<section class="leak" id="leak">
+  <header class="sec-head">
+    <p class="kicker">the core mechanism</p>
+    <h2>Where there's smoke, there's a broken parser.</h2>
+    <p class="sub">The most common failure is invisible from the outside: the model emits a tool call, the server's parser misses it, and it ships as plain text. Scroll through the real case from the sample run.</p>
+  </header>
+  <div class="leak-grid">
+    <div class="stage" id="stage" data-step="1" aria-hidden="true">
+      <div class="node n-req">
+        <div class="node-h"><i>1</i> request</div>
+<pre>POST /v1/chat/completions
+{ "messages": [{"role": "user",
+    "content": "What's the weather in Paris right now?"}],
+  "tools": [get_weather, get_time],
+  <mark>"tool_choice": "none"</mark> }</pre>
+      </div>
+      <div class="wire"><span></span></div>
+      <div class="node n-res">
+        <div class="node-h"><i>2</i> server response</div>
+<pre>"message": {
+  "content": "<span class="leaked" id="leaked" data-text="&lt;tool_call&gt; {{&quot;name&quot;: &quot;get_weather&quot;…">&lt;tool_call&gt; {{"name": "get_weather"…</span>",
+  "tool_calls": <span class="none">none</span> }</pre>
+        <div class="smoke" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+      </div>
+      <div class="wire"><span></span></div>
+      <div class="node n-agent">
+        <div class="node-h"><i>3</i> your agent</div>
+        <p class="agent-line"><span class="x">✗</span> no tool call to run · prints the markup to the user · or loops</p>
+      </div>
+      <div class="wire"><span></span></div>
+      <div class="node n-catch">
+        <div class="node-h"><i>4</i> toolsmoke</div>
+        <p class="catch-line"><span class="id">tools.choice_none</span> <span class="f">FAIL</span> <span class="d">491ms</span><br><span class="det">tool call leaked into content as text: '&lt;tool_call&gt; {{"name": "get_weather"…</span></p>
+      </div>
+    </div>
+    <ol class="steps" id="steps">
+      <li data-step="1"><h3>Ask without tools</h3><p>The probe sends a trivial question with <code>tool_choice: "none"</code>, which is what agents send on the turn where they want a plain answer.</p></li>
+      <li data-step="2"><h3>The call leaks as text</h3><p>The chat template emits a tool call anyway. The parser doesn't recognise it, so <code>&lt;tool_call&gt;</code> markup lands in <code>content</code> and <code>tool_calls</code> stays empty. The HTTP status is still <code>200</code>.</p></li>
+      <li data-step="3"><h3>Your agent breaks far away</h3><p>Nothing is structured, so nothing runs. The user sees raw markup, or the loop retries until it gives up. The stack trace points at your agent, not the server.</p></li>
+      <li data-step="4"><h3>toolsmoke catches it</h3><p>Tool probes scan every reply for tool-call markup (<code>&lt;tool_call&gt;</code>, <code>[TOOL_CALLS]</code>, <code>&lt;function=</code>, <code>&lt;|python_tag|&gt;</code> and more). The probe fails with a detail line that says exactly what leaked. This is the real result from the README run.</p></li>
+    </ol>
+  </div>
+  <div class="incidents">
+    <a class="inc" href="https://github.com/ollama/ollama/issues/11621"><span class="f">FAIL</span><b>Tool calls leak as text</b><small>ollama#11621</small></a>
+    <a class="inc" href="https://github.com/vllm-project/vllm/issues/22403"><span class="f">FAIL</span><b>Streaming breaks tools</b><small>vllm#22403</small></a>
+    <a class="inc" href="https://github.com/ggml-org/llama.cpp/issues/15012"><span class="f">FAIL</span><b>Templates drop tool results</b><small>llama.cpp#15012</small></a>
+  </div>
 </section>
 
 <section class="demo" id="demo">
-  <h2>Try it without a model</h2>
-  <p class="sub"><code>toolsmoke --demo broken</code> starts a built-in mock server with the common failure modes switched on. <code>--demo good</code> shows what a clean pass looks like.</p>
-  <img class="demo-gif" src="demo.gif" width="1180" height="900" loading="lazy" alt="Terminal recording: toolsmoke --demo broken reports 13 failing probes, then toolsmoke --demo good passes every tool, streaming and JSON probe and prints AGENT-READY">
+  <div class="demo-copy">
+    <p class="kicker">no GPU needed</p>
+    <h2>Try it without a model</h2>
+    <p><code>toolsmoke --demo broken</code> starts a built-in mock server with the common failure modes switched on. <code>--demo good</code> shows what a clean pass looks like.</p>
+    <div class="cmd small" data-copy><code><span class="p">$</span> toolsmoke --demo broken</code><button class="copy" type="button" aria-label="Copy command"><span>Copy</span></button></div>
+    <div class="cmd small" data-copy><code><span class="p">$</span> toolsmoke --demo good</code><button class="copy" type="button" aria-label="Copy command"><span>Copy</span></button></div>
+  </div>
+  <figure class="demo-frame">
+    <img src="demo.gif" width="1180" height="900" loading="lazy" decoding="async" alt="Terminal recording: toolsmoke --demo broken reports 13 failing probes, then toolsmoke --demo good passes every tool, streaming and JSON probe and prints AGENT-READY">
+  </figure>
 </section>
 
-<section id="probes" class="probes">
-  <h2>31 probes. One verdict.</h2>
-  <p class="sub">Trivial prompts, <code>temperature: 0</code>, deterministic checks. A failure means the serving stack is broken, not that the model is dumb.</p>
-  <div class="grid">
-    <div class="card"><div class="ico">◎</div><h3>Basics</h3><p>models list, system prompt, multi-turn memory, stop sequences, <code>max_tokens</code> + <code>finish_reason</code></p><span>6 probes</span></div>
-    <div class="card"><div class="ico">≋</div><h3>Streaming</h3><p>SSE deltas, <code>[DONE]</code>, <code>finish_reason</code>, <code>stream_options.include_usage</code></p><span>2 probes</span></div>
-    <div class="card hot"><div class="ico">ƒ</div><h3>Tool calling</h3><p>single, schema-valid args, parallel with distinct ids, <code>tool_choice</code> none / required / named, markup leaks, tool-result round trips, streamed &amp; parallel-streamed deltas</p><span>11 probes</span></div>
-    <div class="card"><div class="ico">{ }</div><h3>Structured output</h3><p><code>json_object</code> mode and strict <code>json_schema</code>, validated</p><span>2 probes</span></div>
-    <div class="card"><div class="ico">∴</div><h3>Reasoning</h3><p>thinking arrives in <code>reasoning_content</code>, not as <code>&lt;think&gt;</code> in the answer</p><span>1 probe</span></div>
-    <div class="card"><div class="ico">!</div><h3>Errors</h3><p>unknown model, malformed request, bad key → clean 4xx, not 500 or silent 200</p><span>3 probes</span></div>
-    <div class="card"><div class="ico">A</div><h3>Anthropic Messages</h3><p><code>/v1/messages</code>, event stream sequence, <code>tool_use</code>, <code>tool_result</code> (opt-in)</p><span>4 probes</span></div>
-    <div class="card"><div class="ico">⚡</div><h3>Performance</h3><p>median time-to-first-token and decode tokens/sec, with optional hard gates</p><span>2 probes</span></div>
+<section class="probes" id="probes">
+  <header class="sec-head">
+    <p class="kicker">the checklist</p>
+    <h2>31 probes. One verdict.</h2>
+    <p class="sub">Trivial prompts, <code>temperature: 0</code>, deterministic checks. A failure means the serving stack is broken, not that the model is dumb. Lights show the sample run.</p>
+  </header>
+  <div class="board" id="board">
+    <div class="grp hot" data-g="tools"><h3>Tool calling</h3><p>single, schema-valid args, parallel with distinct ids, <code>tool_choice</code> none / required / named, markup leaks, tool-result round trips, streamed deltas</p></div>
+    <div class="grp" data-g="basics"><h3>Basics</h3><p>models list, system prompt, multi-turn memory, stop sequences, <code>max_tokens</code> + <code>finish_reason</code></p></div>
+    <div class="grp" data-g="streaming"><h3>Streaming</h3><p>SSE deltas, <code>[DONE]</code>, <code>finish_reason</code>, <code>stream_options.include_usage</code></p></div>
+    <div class="grp" data-g="structured"><h3>Structured output</h3><p><code>json_object</code> mode and strict <code>json_schema</code>, validated</p></div>
+    <div class="grp" data-g="reasoning"><h3>Reasoning</h3><p>thinking arrives in <code>reasoning_content</code>, not as <code>&lt;think&gt;</code> in the answer</p></div>
+    <div class="grp" data-g="errors"><h3>Errors</h3><p>unknown model, malformed request, bad key → clean 4xx, not 500 or a silent 200</p></div>
+    <div class="grp" data-g="anthropic"><h3>Anthropic Messages</h3><p><code>/v1/messages</code>, event stream sequence, <code>tool_use</code>, <code>tool_result</code> (opt-in)</p></div>
+    <div class="grp" data-g="performance"><h3>Performance</h3><p>median time-to-first-token and decode tokens/sec, with optional hard gates</p></div>
+    <div class="verdict-card" id="verdict-card"><h3>Verdict <small>sample run</small></h3><p class="vc-line" id="vc-line"></p><p class="vc-bad">NOT AGENT&#8209;READY · exit 1</p><p class="vc-note">Exit code <code>0</code> when nothing fails, <code>1</code> on failures (or warnings with <code>--strict</code>), <code>2</code> if the endpoint is unreachable.</p></div>
   </div>
   <p class="more"><a href="docs/probes/">Full probe reference →</a></p>
 </section>
 
-<section id="install" class="install">
-  <h2>Install in seconds</h2>
-  <div class="tabs" role="tablist">
-    <button class="tab active" data-tab="uvx">uvx</button>
-    <button class="tab" data-tab="pipx">pipx</button>
-    <button class="tab" data-tab="action">GitHub Action</button>
-  </div>
-  <div class="panel active" id="tab-uvx"><pre><code>uvx --from git+https://github.com/Blackman99/toolsmoke toolsmoke \
-    --base-url http://localhost:8080/v1 --model qwen3</code></pre><button class="copy">Copy</button></div>
-  <div class="panel" id="tab-pipx"><pre><code>pipx install git+https://github.com/Blackman99/toolsmoke
-OPENAI_API_KEY=sk-... toolsmoke --base-url https://api.example.com/v1 --model my-model --anthropic</code></pre><button class="copy">Copy</button></div>
-  <div class="panel" id="tab-action"><pre><code>- uses: Blackman99/toolsmoke@v0.1.1
+<section class="install" id="install">
+  <header class="sec-head">
+    <p class="kicker">one command</p>
+    <h2>Install in seconds</h2>
+  </header>
+  <div class="console">
+    <div class="tabs" role="tablist" aria-label="Install method">
+      <button class="tab" role="tab" aria-selected="true" aria-controls="tab-uvx" id="t-uvx" data-tab="uvx">uvx</button>
+      <button class="tab" role="tab" aria-selected="false" aria-controls="tab-pipx" id="t-pipx" data-tab="pipx" tabindex="-1">pipx</button>
+      <button class="tab" role="tab" aria-selected="false" aria-controls="tab-action" id="t-action" data-tab="action" tabindex="-1">GitHub Action</button>
+      <span class="tab-ink" aria-hidden="true"></span>
+    </div>
+    <div class="panel" role="tabpanel" id="tab-uvx" aria-labelledby="t-uvx" data-copy><pre><code>uvx --from git+https://github.com/Blackman99/toolsmoke toolsmoke \
+    --base-url http://localhost:8080/v1 --model qwen3</code></pre><button class="copy" type="button" aria-label="Copy"><span>Copy</span></button></div>
+    <div class="panel" role="tabpanel" id="tab-pipx" aria-labelledby="t-pipx" data-copy hidden><pre><code>pipx install git+https://github.com/Blackman99/toolsmoke
+OPENAI_API_KEY=sk-... toolsmoke --base-url https://api.example.com/v1 --model my-model --anthropic</code></pre><button class="copy" type="button" aria-label="Copy"><span>Copy</span></button></div>
+    <div class="panel" role="tabpanel" id="tab-action" aria-labelledby="t-action" data-copy hidden><pre><code>- uses: Blackman99/toolsmoke@v0.1.1
   with:
     base-url: https://llm.example.com/v1
     model: qwen3-coder
     api-key: ${{ secrets.LLM_API_KEY }}
-    max-ttft: "1500"</code></pre><button class="copy">Copy</button></div>
+    max-ttft: "1500"</code></pre><button class="copy" type="button" aria-label="Copy"><span>Copy</span></button></div>
+  </div>
   <div class="facts">
     <div><b>0 / 1 / 2</b><span>exit codes for CI</span></div>
     <div><b>table · JSON · Markdown</b><span>output formats</span></div>
@@ -120,10 +197,10 @@ OPENAI_API_KEY=sk-... toolsmoke --base-url https://api.example.com/v1 --model my
 </section>
 </main>
 
-<footer>
-  <span>toolsmoke · MIT © 2026 Blackman99</span>
-  <span><a href="docs/">Docs</a> · <a href="https://github.com/Blackman99/toolsmoke/blob/main/ROADMAP.md">Roadmap</a> · <a href="https://github.com/Blackman99/toolsmoke/releases">Releases</a> · <a href="https://github.com/Blackman99/toolsmoke/issues">Issues</a></span>
+<footer class="foot">
+  <span><img src="favicon.svg" alt="" width="18" height="18"> toolsmoke · MIT © 2026 Blackman99</span>
+  <span><a href="docs/">Docs</a> · <a href="docs/blog/">Blog</a> · <a href="https://github.com/Blackman99/toolsmoke/blob/main/ROADMAP.md">Roadmap</a> · <a href="https://github.com/Blackman99/toolsmoke/releases">Releases</a> · <a href="https://github.com/Blackman99/toolsmoke/issues">Issues</a></span>
 </footer>
-<script src="app.js"></script>
+<script src="app.js" defer></script>
 </body>
 </html>
