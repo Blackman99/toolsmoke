@@ -1,55 +1,56 @@
 <!doctype html>
-<!--
-  Source for site/social-preview.png (1280x640, og:image / twitter:image / GitHub social preview).
-  Numbers come from the README sample run. Re-render with:
-    google-chrome --headless --disable-gpu --hide-scrollbars --force-device-scale-factor=1 \
-      --window-size=1280,640 --screenshot=site/social-preview.png .github/assets/social-preview.html
--->
-<html><head><meta charset="utf-8">
+<!-- Source of site/social-preview.png (1280x640). Render:
+  google-chrome --headless --disable-gpu --no-sandbox --hide-scrollbars --force-device-scale-factor=1 \
+    --window-size=1280,640 --screenshot=site/social-preview.png .github/assets/social-preview.html
+  Same "inspection report" style as the landing page (site/DESIGN.md). Numbers come from the README sample run. -->
+<html lang="en"><head><meta charset="utf-8"><title>toolsmoke social preview</title>
 <style>
-body::before{content:"";position:absolute;inset:0;z-index:-1;background-image:linear-gradient(rgba(74,222,128,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(74,222,128,.05) 1px,transparent 1px);background-size:44px 44px;-webkit-mask-image:radial-gradient(ellipse 90% 80% at 70% 10%,#000 30%,transparent 80%)}
-*{box-sizing:border-box;margin:0;padding:0}
-html,body{width:1280px;height:640px;overflow:hidden}
-body{background:radial-gradient(900px 520px at 85% -10%,rgba(74,222,128,.20),transparent 60%),radial-gradient(700px 420px at -5% 110%,rgba(163,230,53,.10),transparent 60%),#060807;color:#e7efe9;font-family:Inter,sans-serif;-webkit-font-smoothing:antialiased;display:grid;grid-template-columns:540px 1fr;gap:44px;padding:64px 64px 56px 72px;align-items:center}
-.brand{display:flex;align-items:center;gap:18px;font-family:"Martian Mono",monospace;font-stretch:87.5%;font-weight:800;font-size:54px;letter-spacing:-.04em}
-.brand svg{width:72px;height:72px}
-.goal{margin-top:30px;font-family:Inter,sans-serif;font-size:29px;line-height:1.32;font-weight:600;letter-spacing:-.01em;color:#e7efe9}
-.goal em{font-style:normal;background:linear-gradient(90deg,#4ade80,#a3e635);-webkit-background-clip:text;background-clip:text;color:transparent}
-.meta{margin-top:30px;font-family:"JetBrains Mono",monospace;font-size:17px;color:#8ea198;line-height:1.7}
-.meta b{color:#4ade80;font-weight:600}
-.term{background:#050706;border:1px solid #1d2a24;border-radius:16px;box-shadow:0 30px 80px -20px rgba(0,0,0,.85),0 0 70px -12px rgba(74,222,128,.22);overflow:hidden}
-.bar{display:flex;gap:8px;align-items:center;padding:13px 16px;border-bottom:1px solid #1d2a24;background:#0a0e0c}
-.bar i{width:12px;height:12px;border-radius:50%;display:block}
-.bar i:nth-child(1){background:#f8717199}.bar i:nth-child(2){background:#fbbf2499}.bar i:nth-child(3){background:#4ade8099}
-.bar span{margin-left:10px;font-family:"JetBrains Mono",monospace;font-size:13px;color:#8ea198}
-pre{font-family:"JetBrains Mono",monospace;font-size:16.5px;line-height:1.62;color:#cfe0d6;padding:18px 22px 20px;white-space:pre}
-.d{color:#5c6f66}.h{color:#9fb3a9}.p{color:#4ade80;font-weight:700}.w{color:#fbbf24;font-weight:700}.f{color:#f87171;font-weight:700}.s{color:#6b7f76;font-weight:700}.c{color:#fff}
-.leds{display:flex;gap:9px;padding:13px 22px 11px;border-bottom:1px solid #1d2a24}.leds div{display:flex;gap:3px}.leds i{width:12px;height:12px;border-radius:3px;display:block}.leds .PASS{background:#4ade80;box-shadow:0 0 8px rgba(74,222,128,.5)}.leds .WARN{background:#fbbf24;box-shadow:0 0 8px rgba(251,191,36,.5)}.leds .FAIL{background:#f87171;box-shadow:0 0 10px rgba(248,113,113,.7)}.leds .SKIP{background:#3a4a42}
-.v{color:#fff;background:#7f1d1d;padding:1px 6px;border-radius:4px;font-weight:700}
+@font-face{font-family:"Fraunces";src:url(../../site/fonts/fraunces.woff2) format("woff2");font-weight:400 900}
+@font-face{font-family:"Courier Prime";src:url(../../site/fonts/courier-prime-regular.woff2) format("woff2");font-weight:400}
+@font-face{font-family:"Courier Prime";src:url(../../site/fonts/courier-prime-bold.woff2) format("woff2");font-weight:700}
+@font-face{font-family:"Caveat";src:url(../../site/fonts/caveat.woff2) format("woff2");font-weight:500 700}
+*{box-sizing:border-box}
+html,body{margin:0;width:1280px;height:640px;overflow:hidden}
+body{position:relative;color:#1d1c1a;font-family:"Courier Prime",monospace;background:#f2eee3 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cpath d='M0 24.5H120M0 48.5H120M0 72.5H120M0 96.5H120M24.5 0V120M48.5 0V120M72.5 0V120M96.5 0V120' stroke='%23dde2d5'/%3E%3Cpath d='M0 .5H120M.5 0V120' stroke='%23ccd4c4'/%3E%3C/svg%3E") 0 0/120px 120px}
+.holes i{position:absolute;left:30px;width:26px;height:26px;border-radius:50%;background:#e4ddcb;border:1.5px solid #b3ab96}
+.margin{position:absolute;left:84px;top:0;bottom:0;width:2px;background:#c3271b;opacity:.55}
+.sheet{position:absolute;left:120px;right:64px;top:44px;bottom:40px}
+.head{display:flex;justify-content:space-between;align-items:center;border-bottom:3px double #2b2925;padding-bottom:14px}
+.mark{display:flex;align-items:center;gap:14px}
+.mark b{display:block;font:800 34px/1 "Fraunces",serif;letter-spacing:-.01em}
+.mark small{font-size:16px;color:#57534b}
+.ref{text-align:right;font-size:17px;color:#57534b;line-height:1.45}.ref b{color:#1d1c1a}
+h1{margin:30px 0 0;font:800 64px/1.02 "Fraunces",serif;letter-spacing:-.025em;font-variation-settings:"opsz" 144;max-width:760px}
+h1 em{font-style:normal;color:#c3271b;text-decoration:underline;text-decoration-thickness:5px;text-underline-offset:9px}
+.rows{margin:34px 0 0;padding:0;list-style:none;width:560px;font-size:19px}
+.rows li{display:grid;grid-template-columns:40px 1fr 30px 82px;align-items:center;padding:3px 0;border-bottom:1px dotted #a8a08c}
+.rows .n{color:#6e695f}.rows .t{text-align:right;color:#57534b}
+.rows svg{width:22px;height:22px}.rows path{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round}
+.FAIL .id{color:#c3271b;text-decoration:underline wavy #c3271b;text-underline-offset:4px}
+.sum{margin:16px 0 0;font-size:18px;white-space:nowrap}.sum b{font-weight:700}.sum .w{color:#8a5a00}.sum .f{color:#c3271b}
+.stamp{position:absolute;right:24px;top:236px;display:flex;flex-direction:column;align-items:center;color:#c3271b;border:6px solid currentColor;border-radius:10px;outline:2.5px solid currentColor;outline-offset:-14px;padding:22px 34px 18px;transform:rotate(-9deg);opacity:.9;mix-blend-mode:multiply;-webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' seed='7'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -2.4 1.75'/%3E%3C/filter%3E%3Crect width='240' height='120' filter='url(%23n)'/%3E%3C/svg%3E");-webkit-mask-size:240px 120px}
+.stamp b{font-size:40px;letter-spacing:.05em;line-height:1}.stamp small{font-size:19px;letter-spacing:.14em;margin-top:6px}
+.sig{position:absolute;right:40px;bottom:8px;width:330px;border-top:1.5px solid #2b2925;padding-top:4px;font-size:14px;letter-spacing:.12em;color:#57534b;text-transform:uppercase}
+.sig span{position:absolute;left:10px;bottom:22px;font:600 44px "Caveat",cursive;color:#1f3a7a;text-transform:none;letter-spacing:0}
 </style></head>
 <body>
-<div>
-  <div class="brand"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="toolsmoke"><defs><linearGradient id="tsg" gradientUnits="userSpaceOnUse" x1="12" y1="52" x2="52" y2="12"><stop offset="0" stop-color="#4ade80"/><stop offset="1" stop-color="#a3e635"/></linearGradient></defs><rect width="64" height="64" rx="14" fill="#0b0f0c"/><rect x=".5" y=".5" width="63" height="63" rx="13.5" fill="none" stroke="#1d2a24"/><path d="M13 23l11 10-11 10" fill="none" stroke="url(#tsg)" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/><path d="M30 46h21" stroke="url(#tsg)" stroke-width="7" stroke-linecap="round"/><path d="M42 37c-4.5-4-4.5-8 0-12s4.5-8 0-12" fill="none" stroke="url(#tsg)" stroke-width="5" stroke-linecap="round" opacity=".9"/></svg>toolsmoke</div>
-  <p class="goal">Tell you in one command whether your LLM endpoint <em>actually works for agents</em> (tool calling, streaming, structured output) and how fast it is.</p>
-  <p class="meta"><b>31 probes</b> · pass / warn / fail · exit code<br>OpenAI &amp; Anthropic APIs · zero dependencies</p>
-</div>
-<div class="term">
-  <div class="bar"><i></i><i></i><i></i><span>llama.cpp · Qwen2.5-0.5B · real run</span></div>
-  <div class="leds"><div><i class="PASS"></i><i class="PASS"></i><i class="PASS"></i><i class="PASS"></i><i class="PASS"></i><i class="PASS"></i></div><div><i class="PASS"></i><i class="PASS"></i></div><div><i class="PASS"></i><i class="PASS"></i><i class="PASS"></i><i class="FAIL"></i><i class="FAIL"></i><i class="FAIL"></i><i class="PASS"></i><i class="PASS"></i><i class="PASS"></i><i class="PASS"></i><i class="PASS"></i></div><div><i class="PASS"></i><i class="PASS"></i></div><div><i class="SKIP"></i></div><div><i class="WARN"></i><i class="WARN"></i><i class="SKIP"></i></div><div><i class="PASS"></i><i class="PASS"></i><i class="PASS"></i><i class="PASS"></i></div><div><i class="PASS"></i><i class="PASS"></i></div></div>
-<pre><span class="p">$</span> <span class="c">toolsmoke --base-url …/v1 --model qwen</span>
-  <span class="h">PROBE                   RESULT    TIME</span>
-  tools.single            <span class="p">PASS</span>  <span class="d"> 499ms</span>
-  tools.parallel          <span class="p">PASS</span>  <span class="d">  1.0s</span>
-  tools.choice_required   <span class="f">FAIL</span>  <span class="d"> 20.4s</span>
-  tools.choice_named      <span class="f">FAIL</span>  <span class="d"> 473ms</span>
-  stream.tools            <span class="p">PASS</span>  <span class="d"> 485ms</span>
-  json.schema             <span class="p">PASS</span>  <span class="d">  1.4s</span>
-  errors.bad_model        <span class="w">WARN</span>  <span class="d"> 127ms</span>
-  anthropic.tools         <span class="p">PASS</span>  <span class="d"> 519ms</span>
-  <span class="d">…</span>
-
-  <span class="h">TTFT p50</span> 22 ms <span class="d">·</span> 62.4 tok/s
-  <span class="p">24 pass</span> <span class="d">·</span> <span class="w">2 warn</span> <span class="d">·</span> <span class="f">3 fail</span> <span class="d">·</span> <span class="s">2 skip</span>
-  <span class="v">NOT AGENT-READY: 3 failing probes</span></pre>
+<div class="holes"><i style="top:120px"></i><i style="top:307px"></i><i style="top:494px"></i></div>
+<div class="margin"></div>
+<div class="sheet">
+  <div class="head">
+    <div class="mark"><svg viewBox="0 0 64 64" width="58" height="58"><rect x="2" y="2" width="60" height="60" rx="12" fill="none" stroke="#1d1c1a" stroke-width="3"/><path d="M14 23l11 10-11 10" fill="none" stroke="#1d1c1a" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/><path d="M30 46h20" stroke="#1d1c1a" stroke-width="6" stroke-linecap="round"/><path d="M42 37c-4.5-4-4.5-8 0-12s4.5-8 0-12" fill="none" stroke="#1d1c1a" stroke-width="4" stroke-linecap="round"/></svg>
+      <div><b>toolsmoke</b><small>agent-readiness testing laboratory</small></div></div>
+    <div class="ref">Report No. <b>TS-0.1.1/031</b><br>31 probes · one verdict</div>
+  </div>
+  <h1>“OpenAI-compatible” is <em>not</em> a test result.</h1>
+  <ol class="rows">
+    <li class="PASS"><span class="n">10</span><span class="id">tools.args_schema</span><svg viewBox="0 0 20 20"><path stroke="#1d1c1a" d="M3 11l4.5 4.5L17 4"/></svg><span class="t">552ms</span></li>
+    <li class="PASS"><span class="n">11</span><span class="id">tools.parallel</span><svg viewBox="0 0 20 20"><path stroke="#1d1c1a" d="M3 11l4.5 4.5L17 4"/></svg><span class="t">1.0s</span></li>
+    <li class="FAIL"><span class="n">12</span><span class="id">tools.choice_none</span><svg viewBox="0 0 20 20"><path stroke="#c3271b" d="M4 4l12 12M16 4L4 16"/></svg><span class="t">491ms</span></li>
+    <li class="FAIL"><span class="n">13</span><span class="id">tools.choice_required</span><svg viewBox="0 0 20 20"><path stroke="#c3271b" d="M4 4l12 12M16 4L4 16"/></svg><span class="t">20.4s</span></li>
+  </ol>
+  <p class="sum">TTFT p50 <b>22 ms</b> · <b>62.4 tok/s</b> · 24 pass · <span class="w">2 warn</span> · <span class="f">3 fail</span> · 2 skip</p>
+  <div class="stamp"><b>NOT AGENT‑READY</b><small>3 failing probes · exit 1</small></div>
+  <div class="sig"><span>toolsmoke</span>Tested by · exit code 1</div>
 </div>
 </body></html>
