@@ -111,8 +111,8 @@ async function play() {
   if (me === run) finish(true);
 }
 $("#replay").addEventListener("click", play);
-// Start the run once the bench is mostly on screen (right away on desktop, on first scroll on small phones).
-const heroIO = new IntersectionObserver(es => { if (es[0].isIntersecting) { heroIO.disconnect(); play(); } }, {threshold: 0.4});
+// Start the run once the bench is on screen.
+const heroIO = new IntersectionObserver(es => { if (es[0].isIntersecting) { heroIO.disconnect(); play(); } }, {threshold: 0.2});
 heroIO.observe($("#bench"));
 
 /* ---------- leak: scroll-driven walkthrough of the core mechanism ---------- */
