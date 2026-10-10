@@ -6,7 +6,7 @@
 @font-face{font-family:"Caveat";src:url(fonts/caveat.woff2) format("woff2");font-weight:500 700;font-display:swap}
 :root{
   --paper:#f2eee3;--paper2:#e4ddcb;--white:#fbf9f3;--rule:#2b2925;--ink:#1d1c1a;--ink2:#57534b;--ink3:#6e695f;
-  --red:#c3271b;--ochre:#8a5a00;--hi:#f4e27a;
+  --red:#c3271b;--ochre:#8a5a00;--hi:#e2cc96;
   --serif:"Fraunces",Georgia,serif;--type:"Courier Prime",monospace;--hand:"Caveat",cursive;
   --lh:24px;--holes:64px;--ease:cubic-bezier(.3,.7,.2,1)
 }
@@ -96,9 +96,13 @@ li.p .mk path{animation:pen .3s .12s ease-out forwards}
 .sign>div{display:flex;flex-direction:column;border-bottom:1px solid var(--rule);padding-bottom:2px}
 .sign .lbl{font:700 11px var(--type);letter-spacing:.12em;text-transform:uppercase;color:var(--ink2)}
 .sign .val{line-height:40px}
-.hand{font-family:var(--hand);font-weight:600;color:#1f3a7a}
+.hand{font-family:var(--hand);font-weight:600;color:var(--ink)}
 .sig .hand{font-size:34px;line-height:40px;clip-path:inset(0 100% 0 0);transition:clip-path .9s var(--ease)}
 .sig .hand.on{clip-path:inset(0 0 0 0)}
+.sig{position:relative}
+.seal{position:absolute;right:6%;top:-34px;width:112px;height:112px;opacity:0;transform:rotate(-14deg) scale(1.3);pointer-events:none}
+.seal.on{opacity:1;transform:rotate(-14deg);animation:press .45s var(--ease) both}
+@keyframes press{0%{opacity:0;transform:rotate(-20deg) scale(1.3)}60%{opacity:1;transform:rotate(-13deg) scale(.96)}100%{opacity:1;transform:rotate(-14deg) scale(1)}}
 
 /* section sheets: § number column + wide body */
 .s-find,.s-sched,.s-exhibit,.s-proc{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));column-gap:24px;padding:56px 0 40px;border-top:2px dashed #b3ab96;position:relative}
@@ -195,7 +199,7 @@ mark::before{content:"";position:absolute;inset:1px -2px;background:var(--hi);op
   .letterhead{grid-template-columns:1fr auto;gap:10px 16px;padding:16px 16px 10px}
   .contents{grid-column:1/3;grid-row:2;justify-content:flex-start;font-size:13px}
   .contents .lbl,.contents a[href^="#"]{display:none}
-  .lab b{font-size:21px}.lab small{font-size:11px}.mark svg{width:36px;height:36px}
+  .lab b{font-size:21px}.lab small{font-size:11px}.mark svg{width:38px;height:38px}.seal{width:92px;height:92px;top:-22px;right:14px}.sign{overflow-x:clip}
   .refno{font-size:11.5px}
   main{padding:0 16px}
   .s-head{display:block;padding-top:22px}

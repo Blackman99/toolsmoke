@@ -1,7 +1,9 @@
 <!doctype html>
-<!-- Source of site/social-preview.png (1280x640). Render:
+<!-- Source of site/social-preview.png (1280x640) and, with #docs, docs/assets/og-docs.png (1200x630). Render:
   google-chrome --headless --disable-gpu --no-sandbox --hide-scrollbars --force-device-scale-factor=1 \
     --window-size=1280,640 --screenshot=site/social-preview.png .github/assets/social-preview.html
+  google-chrome --headless --disable-gpu --no-sandbox --hide-scrollbars --force-device-scale-factor=1 \
+    --window-size=1200,630 --screenshot=docs/assets/og-docs.png "file://$PWD/.github/assets/social-preview.html#docs"
   Same "inspection report" style as the landing page (site/DESIGN.md). Numbers come from the README sample run. -->
 <html lang="en"><head><meta charset="utf-8"><title>toolsmoke social preview</title>
 <style>
@@ -10,7 +12,7 @@
 @font-face{font-family:"Courier Prime";src:url(../../site/fonts/courier-prime-bold.woff2) format("woff2");font-weight:700}
 @font-face{font-family:"Caveat";src:url(../../site/fonts/caveat.woff2) format("woff2");font-weight:500 700}
 *{box-sizing:border-box}
-html,body{margin:0;width:1280px;height:640px;overflow:hidden}
+html,body{margin:0;width:100vw;height:100vh;overflow:hidden}
 body{position:relative;color:#1d1c1a;font-family:"Courier Prime",monospace;background:#f2eee3 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cpath d='M0 24.5H120M0 48.5H120M0 72.5H120M0 96.5H120M24.5 0V120M48.5 0V120M72.5 0V120M96.5 0V120' stroke='%23dde2d5'/%3E%3Cpath d='M0 .5H120M.5 0V120' stroke='%23ccd4c4'/%3E%3C/svg%3E") 0 0/120px 120px}
 .holes i{position:absolute;left:30px;width:26px;height:26px;border-radius:50%;background:#e4ddcb;border:1.5px solid #b3ab96}
 .margin{position:absolute;left:84px;top:0;bottom:0;width:2px;background:#c3271b;opacity:.55}
@@ -30,19 +32,25 @@ h1 em{font-style:normal;color:#c3271b;text-decoration:underline;text-decoration-
 .sum{margin:16px 0 0;font-size:18px;white-space:nowrap}.sum b{font-weight:700}.sum .w{color:#8a5a00}.sum .f{color:#c3271b}
 .stamp{position:absolute;right:24px;top:236px;display:flex;flex-direction:column;align-items:center;color:#c3271b;border:6px solid currentColor;border-radius:10px;outline:2.5px solid currentColor;outline-offset:-14px;padding:22px 34px 18px;transform:rotate(-9deg);opacity:.9;mix-blend-mode:multiply;-webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' seed='7'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -2.4 1.75'/%3E%3C/filter%3E%3Crect width='240' height='120' filter='url(%23n)'/%3E%3C/svg%3E");-webkit-mask-size:240px 120px}
 .stamp b{font-size:40px;letter-spacing:.05em;line-height:1}.stamp small{font-size:19px;letter-spacing:.14em;margin-top:6px}
-.sig{position:absolute;right:40px;bottom:8px;width:330px;border-top:1.5px solid #2b2925;padding-top:4px;font-size:14px;letter-spacing:.12em;color:#57534b;text-transform:uppercase}
-.sig span{position:absolute;left:10px;bottom:22px;font:600 44px "Caveat",cursive;color:#1f3a7a;text-transform:none;letter-spacing:0}
+.seal{position:absolute;right:28px;bottom:-14px;width:150px;height:150px;transform:rotate(-14deg)}
+.docs .rows,.docs .sum,.docs .stamp{display:none}.docs .seal{width:250px;height:250px;right:60px;bottom:110px;transform:rotate(-10deg)}.docs .lead{max-width:700px}.d{display:none}.docs .d{display:block}.docs .nd{display:none}
+.lead{margin:22px 0 0;font:21px/1.5 "Courier Prime",monospace;color:#57534b;max-width:620px}
+.sig{position:absolute;right:200px;bottom:8px;width:300px;border-top:1.5px solid #2b2925;padding-top:4px;font-size:14px;letter-spacing:.12em;color:#57534b;text-transform:uppercase}
+.sig span{position:absolute;left:10px;bottom:22px;font:600 44px "Caveat",cursive;color:#1d1c1a;text-transform:none;letter-spacing:0}
 </style></head>
 <body>
+<script>if (location.hash === "#docs") document.body.classList.add("docs")</script>
 <div class="holes"><i style="top:120px"></i><i style="top:307px"></i><i style="top:494px"></i></div>
 <div class="margin"></div>
 <div class="sheet">
   <div class="head">
-    <div class="mark"><svg viewBox="0 0 64 64" width="58" height="58"><rect x="2" y="2" width="60" height="60" rx="12" fill="none" stroke="#1d1c1a" stroke-width="3"/><path d="M14 23l11 10-11 10" fill="none" stroke="#1d1c1a" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/><path d="M30 46h20" stroke="#1d1c1a" stroke-width="6" stroke-linecap="round"/><path d="M42 37c-4.5-4-4.5-8 0-12s4.5-8 0-12" fill="none" stroke="#1d1c1a" stroke-width="4" stroke-linecap="round"/></svg>
+    <div class="mark"><svg viewBox="0 0 64 64" width="60" height="60"><circle cx="32" cy="32" r="27" fill="none" stroke="#1d1c1a" stroke-width="4.5"/><circle cx="32" cy="32" r="21" fill="none" stroke="#1d1c1a" stroke-width="1.5"/><path d="M19 33l8.5 8.5L46 21" fill="none" stroke="#c3271b" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/></svg>
       <div><b>toolsmoke</b><small>agent-readiness testing laboratory</small></div></div>
-    <div class="ref">Report No. <b>TS-0.1.1/031</b><br>31 probes · one verdict</div>
+    <div class="ref">Report No. <b>TS-0.1.1/031</b><br><span class="nd">31 probes · one verdict</span><span class="d">Appendix: documentation</span></div>
   </div>
-  <h1>“OpenAI-compatible” is <em>not</em> a test result.</h1>
+  <h1 class="nd">“OpenAI-compatible” is <em>not</em> a test result.</h1>
+  <h1 class="d">Install, usage, <em>probe reference</em> and the GitHub Action.</h1>
+  <p class="lead d">toolsmoke docs · 31 probes · pass / warn / fail · exit code · OpenAI &amp; Anthropic APIs · zero dependencies</p>
   <ol class="rows">
     <li class="PASS"><span class="n">10</span><span class="id">tools.args_schema</span><svg viewBox="0 0 20 20"><path stroke="#1d1c1a" d="M3 11l4.5 4.5L17 4"/></svg><span class="t">552ms</span></li>
     <li class="PASS"><span class="n">11</span><span class="id">tools.parallel</span><svg viewBox="0 0 20 20"><path stroke="#1d1c1a" d="M3 11l4.5 4.5L17 4"/></svg><span class="t">1.0s</span></li>
@@ -51,6 +59,7 @@ h1 em{font-style:normal;color:#c3271b;text-decoration:underline;text-decoration-
   </ol>
   <p class="sum">TTFT p50 <b>22 ms</b> · <b>62.4 tok/s</b> · 24 pass · <span class="w">2 warn</span> · <span class="f">3 fail</span> · 2 skip</p>
   <div class="stamp"><b>NOT AGENT‑READY</b><small>3 failing probes · exit 1</small></div>
-  <div class="sig"><span>toolsmoke</span>Tested by · exit code 1</div>
+  <div class="sig"><span>toolsmoke</span>Tested by · signature</div>
+  <img class="seal" src="../../assets/logo.svg" alt="">
 </div>
 </body></html>

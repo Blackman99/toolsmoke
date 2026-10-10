@@ -12,19 +12,10 @@ theme:
   favicon: assets/logo.svg
   logo: assets/logo.svg
   palette:
-    - media: "(prefers-color-scheme: dark)"
-      scheme: slate
-      primary: black
-      accent: light green
-      toggle: {icon: material/weather-sunny, name: Light mode}
-    - media: "(prefers-color-scheme: light)"
-      scheme: default
-      primary: black
-      accent: green
-      toggle: {icon: material/weather-night, name: Dark mode}
-  font:
-    text: Inter
-    code: JetBrains Mono
+    scheme: default
+    primary: custom
+    accent: custom
+  font: false
   features:
     - navigation.instant
     - navigation.sections
@@ -46,6 +37,9 @@ nav:
     - "Tool calling breaks silently": blog/tool-calling-breaks-silently.md
     - "工具调用为什么会悄悄失效": blog/tool-calling-breaks-silently-zh.md
   - Home page ↗: https://blackman99.github.io/toolsmoke/
+
+extra_css:
+  - stylesheets/report.css
 
 markdown_extensions:
   - admonition

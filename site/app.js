@@ -15,7 +15,7 @@ ROWS.forEach(r => TOTAL[r[1]]++);
 
 /* ---------- sheet 1: the report prints line by line, gets ticked, stamped and signed ---------- */
 const list = $("#results"), stamp = $("#stamp"), summary = $("#summary"), sig = $("#sig");
-const fResults = $("#f-results"), fTtft = $("#f-ttft"), fTps = $("#f-tps"), fVerdict = $("#f-verdict");
+const seal = $("#seal"), fResults = $("#f-results"), fTtft = $("#f-ttft"), fTps = $("#f-tps"), fVerdict = $("#f-verdict");
 list.innerHTML = ROWS.map(([id, st, t, d], i) =>
   `<li class="${st}" title="${esc(d)}"><span class="n">${String(i + 1).padStart(2, "0")}</span><span class="id">${id}</span>` +
   `<svg class="mk" viewBox="0 0 20 20" role="img" aria-label="${st}"><path pathLength="1" d="${MARK[st]}"/></svg>` +
@@ -34,7 +34,7 @@ function reset() {
   Object.keys(counts).forEach(k => { counts[k] = 0; });
   fResults.textContent = "awaiting print"; fTtft.textContent = "—"; fTps.textContent = "—";
   fVerdict.innerHTML = '<span class="blank">________________</span>';
-  stamp.classList.remove("on"); summary.classList.remove("on"); sig.classList.remove("on");
+  stamp.classList.remove("on"); summary.classList.remove("on"); sig.classList.remove("on"); seal.classList.remove("on");
 }
 function printRow(i) {
   const [id, st] = ROWS[i];
@@ -53,7 +53,7 @@ function finish() {
 async function play() {
   const me = ++run;
   reset();
-  if (reduced) { ROWS.forEach((_, i) => printRow(i)); finish(); sig.classList.add("on"); return; }
+  if (reduced) { ROWS.forEach((_, i) => printRow(i)); finish(); sig.classList.add("on"); seal.classList.add("on"); return; }
   await sleep(350);
   for (let i = 0; i < ROWS.length; i++) {
     if (me !== run) return;
@@ -62,7 +62,9 @@ async function play() {
   }
   await sleep(350); if (me !== run) return;
   finish();
-  await sleep(650); if (me === run) sig.classList.add("on");
+  await sleep(650); if (me !== run) return;
+  sig.classList.add("on");
+  await sleep(700); if (me === run) seal.classList.add("on");
 }
 $("#reprint").addEventListener("click", play);
 const printIO = new IntersectionObserver(es => { if (es[0].isIntersecting) { printIO.disconnect(); play(); } }, {threshold: 0.05});

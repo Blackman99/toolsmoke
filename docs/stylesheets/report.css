@@ -1,0 +1,27 @@
+/* Docs skin matching the landing page's "lab inspection report" (site/DESIGN.md): paper, ink, vermilion.
+   Fonts are self-hosted (OFL, see ../assets/fonts/OFL.txt); no Google Fonts request. */
+@font-face{font-family:"Fraunces";src:url(../assets/fonts/fraunces.woff2) format("woff2");font-weight:400 900;font-display:swap}
+@font-face{font-family:"Fraunces";src:url(../assets/fonts/fraunces-italic.woff2) format("woff2");font-weight:400 700;font-style:italic;font-display:swap}
+@font-face{font-family:"Courier Prime";src:url(../assets/fonts/courier-prime-regular.woff2) format("woff2");font-weight:400;font-display:swap}
+@font-face{font-family:"Courier Prime";src:url(../assets/fonts/courier-prime-bold.woff2) format("woff2");font-weight:700;font-display:swap}
+:root{
+  --md-text-font:"Fraunces";--md-code-font:"Courier Prime";
+  --md-primary-fg-color:#1d1c1a;--md-primary-fg-color--light:#57534b;--md-primary-fg-color--dark:#1d1c1a;
+  --md-primary-bg-color:#f2eee3;--md-primary-bg-color--light:#e4ddcb;
+  --md-accent-fg-color:#c3271b;--md-accent-fg-color--transparent:rgba(195,39,27,.1);
+}
+[data-md-color-scheme=default]{
+  --md-default-bg-color:#f2eee3;--md-default-fg-color:#1d1c1a;--md-default-fg-color--light:#57534b;
+  --md-default-fg-color--lighter:#6e695f;--md-default-fg-color--lightest:#cfc7b3;
+  --md-typeset-color:#1d1c1a;--md-typeset-a-color:#a31f15;
+  --md-code-bg-color:#fbf9f3;--md-code-fg-color:#1d1c1a;
+  --md-footer-bg-color:#1d1c1a;--md-footer-bg-color--dark:#1d1c1a;--md-footer-fg-color:#f2eee3;
+}
+.md-header,.md-tabs{background:#1d1c1a;color:#f2eee3}
+.md-header__button.md-logo img{height:1.8rem;width:1.8rem}
+.md-typeset h1,.md-typeset h2,.md-typeset h3{font-weight:800;letter-spacing:-.015em;color:#1d1c1a}
+.md-typeset code{border:1px solid #cfc7b3;border-radius:2px}
+.md-typeset pre>code{border:0}
+.md-typeset table:not([class]){border:1.5px solid #2b2925;border-radius:0;background:#fbf9f3}
+.md-typeset table:not([class]) th{background:#e4ddcb;font-family:"Courier Prime",monospace;text-transform:uppercase;letter-spacing:.06em;font-size:.68rem}
+.md-typeset hr{border-bottom:2px dashed #b3ab96}

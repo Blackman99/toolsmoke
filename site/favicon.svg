@@ -1,13 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="512" height="512" role="img" aria-label="toolsmoke">
-  <defs>
-    <linearGradient id="tsg" gradientUnits="userSpaceOnUse" x1="12" y1="52" x2="52" y2="12">
-      <stop offset="0" stop-color="#4ade80"/>
-      <stop offset="1" stop-color="#a3e635"/>
-    </linearGradient>
-  </defs>
-  <rect width="64" height="64" rx="14" fill="#0b0f0c"/>
-  <rect x=".5" y=".5" width="63" height="63" rx="13.5" fill="none" stroke="#1d2a24"/>
-  <path d="M13 23l11 10-11 10" fill="none" stroke="url(#tsg)" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="M30 46h21" stroke="url(#tsg)" stroke-width="7" stroke-linecap="round"/>
-  <path d="M42 37c-4.5-4-4.5-8 0-12s4.5-8 0-12" fill="none" stroke="url(#tsg)" stroke-width="5" stroke-linecap="round" opacity=".9"/>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64"><title>toolsmoke</title><circle cx="32" cy="32" r="31" fill="#f2eee3"/><circle cx="32" cy="32" r="27" fill="none" stroke="#1d1c1a" stroke-width="5"/><path d="M17 33l9 9 21-23" fill="none" stroke="#c3271b" stroke-width="7.5" stroke-linecap="round" stroke-linejoin="round"/></svg>

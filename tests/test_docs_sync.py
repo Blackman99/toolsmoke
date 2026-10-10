@@ -76,8 +76,11 @@ def test_probe_counts_and_json_example_match_readme(sample):
 
 def test_logo_copies_match_canonical():
     logo = _read("assets/logo.svg")
-    assert _read("site/favicon.svg") == logo, "site/favicon.svg must be a copy of assets/logo.svg"
+    assert _read("site/seal.svg") == logo, "site/seal.svg must be a copy of assets/logo.svg"
     assert _read("docs/assets/logo.svg") == logo, "docs/assets/logo.svg must be a copy of assets/logo.svg"
+    # the favicon is the simplified 16px variant of the seal: ink ring + vermilion check, no app-icon tile
+    fav = _read("site/favicon.svg")
+    assert "#1d1c1a" in fav and "#c3271b" in fav and "<rect" not in fav and len(fav) < 1000
     assert "logo: assets/logo.svg" in _read("mkdocs.yml") and "favicon: assets/logo.svg" in _read("mkdocs.yml")
     assert 'src="assets/logo.svg"' in _read("README.md")
     assert (ROOT / "assets" / "logo-512.png").read_bytes()[16:24] == (512).to_bytes(4, "big") * 2
