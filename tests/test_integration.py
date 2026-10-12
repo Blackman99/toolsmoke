@@ -10,6 +10,7 @@ BROKEN_EXPECTED = {
     "chat.basic": "warn",
     "chat.stop": "fail",
     "stream.usage": "warn",
+    "tools.nested_args": "fail",
     "tools.parallel": "warn",
     "tools.choice_none": "fail",
     "tools.choice_required": "fail",

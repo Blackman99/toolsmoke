@@ -10,7 +10,7 @@ toolsmoke --base-url http://localhost:8080/v1 --model qwen3-coder
 - `--model` is the model name the server expects.
 - The API key comes from `OPENAI_API_KEY` (or `TOOLSMOKE_API_KEY`, or any variable named by `--api-key-env`). It is never passed on the command line.
 
-Typical base URLs:
+Typical base URLs (or use `--preset NAME` to fill the default for you; see [Configuration](configuration.md)):
 
 | Server | Base URL |
 |---|---|
@@ -84,7 +84,7 @@ JSON report shape:
 {
   "tool": "toolsmoke", "version": "0.1.1",
   "endpoint": "http://localhost:8080/v1", "model": "qwen", "anthropic": true,
-  "summary": {"pass": 24, "warn": 2, "fail": 3, "skip": 2},
+  "summary": {"pass": 25, "warn": 3, "fail": 3, "skip": 2},
   "performance": {"ttft_ms_p50": 22.0, "tokens_per_sec": 62.4},
   "verdict": "NOT AGENT-READY: 3 failing probes",
   "results": [

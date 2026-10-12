@@ -6,7 +6,7 @@
 
 <p align="center"><img src="site/demo.gif" width="880" alt="toolsmoke --demo broken finds 13 failing probes; --demo good passes and prints AGENT-READY"></p>
 
-Every "OpenAI-compatible" server answers a plain chat request. Agents need more: structured `tool_calls` instead of `<tool_call>` text in `content`, `tool_choice` that is enforced, streamed tool-call deltas that assemble into valid JSON, JSON-schema output, reasoning kept out of the answer, tool results that survive the chat template. When one of these is broken (see [ollama#11621](https://github.com/ollama/ollama/issues/11621), [vllm#22403](https://github.com/vllm-project/vllm/issues/22403), [llama.cpp#15012](https://github.com/ggml-org/llama.cpp/issues/15012)), your agent fails somewhere far from the cause. toolsmoke runs 31 small probes against your endpoint (OpenAI chat completions, optionally Anthropic Messages) and gives you a pass/warn/fail verdict, time-to-first-token, tokens/sec and an exit code.
+Every "OpenAI-compatible" server answers a plain chat request. Agents need more: structured `tool_calls` instead of `<tool_call>` text in `content`, `tool_choice` that is enforced, streamed tool-call deltas that assemble into valid JSON, JSON-schema output, reasoning kept out of the answer, tool results that survive the chat template. When one of these is broken (see [ollama#11621](https://github.com/ollama/ollama/issues/11621), [vllm#22403](https://github.com/vllm-project/vllm/issues/22403), [llama.cpp#15012](https://github.com/ggml-org/llama.cpp/issues/15012)), your agent fails somewhere far from the cause. toolsmoke runs 33 small probes against your endpoint (OpenAI chat completions, optionally Anthropic Messages) and gives you a pass/warn/fail verdict, time-to-first-token, tokens/sec and an exit code.
 
 ## Install
 
@@ -34,7 +34,9 @@ $ toolsmoke --base-url http://localhost:8080/v1 --model qwen --anthropic
   stream.usage            PASS      56ms  usage chunk: 37 prompt / 3 completion tokens
   tools.single            PASS     499ms  get_weather({"city": "Paris", "unit": "celsius"}) finish_reason=tool_calls
   tools.args_schema       PASS     552ms  valid against schema: {"city": "Tokyo", "unit": "fahrenheit"}
+  tools.nested_args       PASS     561ms  search_flights nested trip+passengers OK: {"trip": {"from_city": "Paris", "to_city": "Tokyo", "date": "2026-11-01"}, "passengers": ["Alice", "Bob"]}
   tools.parallel          PASS      1.0s  2 calls with distinct ids: Paris, Tokyo
+  tools.no_parallel       WARN     978ms  parallel_tool_calls=false ignored (2 calls)
   tools.choice_none       FAIL     491ms  tool call leaked into content as text: '<tool_call> {{"name": "get_weather"…
   tools.choice_required   FAIL     20.4s  no tool call although tool_choice=required (reply: 'Hello! How can I assist…
   tools.choice_named      FAIL     473ms  called 'get_weather'; named tool_choice get_time was ignored
@@ -56,10 +58,10 @@ $ toolsmoke --base-url http://localhost:8080/v1 --model qwen --anthropic
   perf.ttft               PASS     917ms  p50 22 ms (min 19, max 50, n=3)
   perf.throughput         PASS      4.2s  62.4 tok/s (256 tokens via usage, 4.2s total)
 
-  TTFT p50 22 ms · 62.4 tok/s · 24 pass · 2 warn · 3 fail · 2 skip
+  TTFT p50 22 ms · 62.4 tok/s · 25 pass · 3 warn · 3 fail · 2 skip
   NOT AGENT-READY: 3 failing probes
 ```
 
-Exit code is `0` when nothing fails, `1` on failures (or warnings with `--strict`), `2` if the endpoint is unreachable. The API key is read from `OPENAI_API_KEY` (or `--api-key-env NAME`).
+Exit code is `0` when nothing fails, `1` on failures (or warnings with `--strict`), `2` if the endpoint is unreachable. The API key is read from `OPENAI_API_KEY` (or `--api-key-env NAME`). Provider shortcuts: `--preset ollama|vllm|llamacpp|lmstudio|sglang|openrouter|litellm` fills a default `--base-url` when you omit it and adds short known-quirk hints on FAIL/WARN.
 
 **Docs:** [blackman99.github.io/toolsmoke/docs](https://blackman99.github.io/toolsmoke/docs/) · [GitHub Action](https://blackman99.github.io/toolsmoke/docs/github-action/) · [Probe reference](https://blackman99.github.io/toolsmoke/docs/probes/) · MIT

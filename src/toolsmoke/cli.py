@@ -16,6 +16,7 @@ from .report import markdown, table, to_json_text
 
 EPILOG = """examples:
   toolsmoke --base-url http://localhost:8080/v1 --model qwen3-coder
+  toolsmoke --preset ollama --model llama3.1
   OPENAI_API_KEY=sk-... toolsmoke --base-url https://api.example.com/v1 --model my-model --anthropic
   toolsmoke --base-url http://localhost:11434/v1 --model llama3.1 --only 'tools.*' --json report.json
   toolsmoke --demo broken          # try it against the bundled mock server
@@ -38,6 +39,8 @@ def build_parser() -> argparse.ArgumentParser:
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     p.add_argument("--base-url", default=env("TOOLSMOKE_BASE_URL"), help="OpenAI-compatible base URL, e.g. http://localhost:8080/v1 [env TOOLSMOKE_BASE_URL]")
+    p.add_argument("--preset", choices=["ollama", "vllm", "llamacpp", "lmstudio", "sglang", "openrouter", "litellm"],
+                   default=env("TOOLSMOKE_PRESET"), help="provider preset: fills --base-url when omitted and adds known-quirk hints on FAIL/WARN [env TOOLSMOKE_PRESET]")
     p.add_argument("--model", "-m", default=env("TOOLSMOKE_MODEL"), help="model name to request [env TOOLSMOKE_MODEL]")
     p.add_argument("--api-key-env", default=env("TOOLSMOKE_API_KEY_ENV", "OPENAI_API_KEY"), metavar="NAME", help="name of the env var holding the API key (default: OPENAI_API_KEY; TOOLSMOKE_API_KEY always wins)")
     p.add_argument("--header", "-H", action="append", default=[], metavar="'K: V'", help="extra HTTP header (repeatable)")
@@ -92,6 +95,7 @@ def config_from_args(a: argparse.Namespace) -> Config:
         max_ttft_ms=a.max_ttft,
         min_tps=a.min_tps,
         perf_runs=a.perf_runs,
+        preset=a.preset,
     )
 
 
@@ -130,9 +134,14 @@ def main(argv: Optional[List[str]] = None) -> int:
         a.model = a.model or "mock-model"
         a.anthropic = True
 
+    if a.preset and not a.base_url:
+        from .presets import default_base_url
+
+        a.base_url = default_base_url(a.preset)
+
     if not a.base_url or not a.model:
         parser.print_usage(sys.stderr)
-        print("toolsmoke: error: --base-url and --model are required (or set TOOLSMOKE_BASE_URL / TOOLSMOKE_MODEL)", file=sys.stderr)
+        print("toolsmoke: error: --base-url and --model are required (or set TOOLSMOKE_BASE_URL / TOOLSMOKE_MODEL, or use --preset)", file=sys.stderr)
         return 2
     try:
         cfg = config_from_args(a)

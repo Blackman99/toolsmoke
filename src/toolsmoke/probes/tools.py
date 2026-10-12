@@ -7,12 +7,12 @@ from ..core import (
     parse_tool_calls, probe,
 )
 from ..schema import validate
-from .fixtures import SCHEMAS, SYSTEM_TOOLS, TOOLS, WEATHER_RESULT_PARIS, WEATHER_RESULT_TOKYO
+from .fixtures import NESTED_TOOLS, SCHEMAS, SYSTEM_TOOLS, TOOLS, WEATHER_RESULT_PARIS, WEATHER_RESULT_TOKYO
 
 
-def _ask(ctx: Ctx, prompt: str, **params):
+def _ask(ctx: Ctx, prompt: str, tools=None, **params):
     msgs = [{"role": "system", "content": SYSTEM_TOOLS}, {"role": "user", "content": prompt}]
-    _, data = ctx.chat(msgs, tools=TOOLS, **params)
+    _, data = ctx.chat(msgs, tools=tools if tools is not None else TOOLS, **params)
     msg = message(data)
     return data, msg, parse_tool_calls(msg), content_of(msg)
 
@@ -68,6 +68,35 @@ def tools_args_schema(ctx: Ctx) -> Outcome:
     return Outcome(PASS, f"valid against schema: {calls[0].raw_args}")
 
 
+
+@probe("tools.nested_args", "tools", "Tool args with nested object and array")
+def tools_nested_args(ctx: Ctx) -> Outcome:
+    _, _msg, calls, text = _ask(
+        ctx,
+        "Search flights from Paris to Tokyo on 2026-11-01 for passengers Alice and Bob.",
+        tools=NESTED_TOOLS,
+        tool_choice={"type": "function", "function": {"name": "search_flights"}},
+    )
+    if not calls:
+        return _leak_fail(text) if find_leak(text) else Outcome(FAIL, "no tool call returned")
+    problems = _call_problems(calls)
+    if problems:
+        return Outcome(FAIL, "; ".join(problems[:2]))
+    c = calls[0]
+    if c.name != "search_flights":
+        return Outcome(FAIL, f"called {c.name!r}, expected search_flights")
+    args = c.args or {}
+    trip = args.get("trip")
+    passengers = args.get("passengers")
+    if not isinstance(trip, dict) or not isinstance(passengers, list):
+        return Outcome(FAIL, f"expected nested trip object and passengers array, got {c.raw_args}")
+    if not trip.get("from_city") or not trip.get("to_city"):
+        return Outcome(WARN, f"nested structure OK but cities missing: {c.raw_args}")
+    if len(passengers) < 1:
+        return Outcome(FAIL, "passengers array is empty")
+    return Outcome(PASS, f"search_flights nested trip+passengers OK: {c.raw_args}")
+
+
 @probe("tools.parallel", "tools", "Parallel tool calls in one turn")
 def tools_parallel(ctx: Ctx) -> Outcome:
     _, _msg, calls, text = _ask(ctx, "Get the current weather for Paris and for Tokyo.")
@@ -83,6 +112,28 @@ def tools_parallel(ctx: Ctx) -> Outcome:
         return Outcome(FAIL, f"duplicate tool call ids {ids}: results can't be matched back")
     cities = sorted(str((c.args or {}).get("city", "")) for c in calls)
     return Outcome(PASS, f"{len(calls)} calls with distinct ids: {', '.join(cities)}")
+
+
+
+@probe("tools.no_parallel", "tools", "parallel_tool_calls=false limits to one call")
+def tools_no_parallel(ctx: Ctx) -> Outcome:
+    try:
+        _data, _msg, calls, text = _ask(
+            ctx, "Get the current weather for Paris and for Tokyo.", parallel_tool_calls=False
+        )
+    except ProbeFail as e:
+        err = str(e)
+        if err.startswith("HTTP 400") or err.startswith("HTTP 422"):
+            return Outcome(WARN, f"server rejected parallel_tool_calls=false: {err} (many local stacks lack this flag)")
+        raise
+    if not calls:
+        return _leak_fail(text) if find_leak(text) else Outcome(FAIL, "no tool calls returned")
+    problems = _call_problems(calls)
+    if problems:
+        return Outcome(FAIL, problems[0])
+    if len(calls) >= 2:
+        return Outcome(WARN, f"parallel_tool_calls=false ignored ({len(calls)} calls)")
+    return Outcome(PASS, f"exactly 1 tool call with parallel_tool_calls=false: {calls[0].name}")
 
 
 @probe("tools.choice_none", "tools", "tool_choice=\"none\" suppresses tools")

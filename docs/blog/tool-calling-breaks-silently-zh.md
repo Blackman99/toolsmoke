@@ -44,7 +44,7 @@ description: llama.cpp、Ollama、vLLM 和各种中转站上，工具调用经�
 
 ## 一条命令检测
 
-[toolsmoke](https://github.com/Blackman99/toolsmoke) 会向你的接口发送 31 个小探针，提示词都很简单，用 `temperature: 0`，结果按确定的规则判断。每个探针输出 PASS、WARN 或 FAIL，同时给出首字延迟、每秒 token 数，以及一个可以直接用在 CI 里的退出码。只需要 Python 3.9+，没有任何依赖。
+[toolsmoke](https://github.com/Blackman99/toolsmoke) 会向你的接口发送 33 个小探针，提示词都很简单，用 `temperature: 0`，结果按确定的规则判断。每个探针输出 PASS、WARN 或 FAIL，同时给出首字延迟、每秒 token 数，以及一个可以直接用在 CI 里的退出码。只需要 Python 3.9+，没有任何依赖。
 
 ```bash
 uvx --from git+https://github.com/Blackman99/toolsmoke toolsmoke \
@@ -76,11 +76,11 @@ $ toolsmoke --base-url http://localhost:8080/v1 --model qwen --anthropic
   perf.ttft               PASS     917ms  p50 22 ms (min 19, max 50, n=3)
   perf.throughput         PASS      4.2s  62.4 tok/s (256 tokens via usage, 4.2s total)
 
-  TTFT p50 22 ms · 62.4 tok/s · 24 pass · 2 warn · 3 fail · 2 skip
+  TTFT p50 22 ms · 62.4 tok/s · 25 pass · 3 warn · 3 fail · 2 skip
   NOT AGENT-READY: 3 failing probes
 ```
 
-（完整的 31 行输出见 [README](https://github.com/Blackman99/toolsmoke#usage)。）
+（完整的 33 行输出见 [README](https://github.com/Blackman99/toolsmoke#usage)。）
 
 大部分都通过了：结构化的工具调用、符合 schema 的参数、并行调用、流式增量、工具结果回传、严格 JSON schema，连 Anthropic Messages 接口都没问题。三个失败全都跟 `tool_choice` 有关：
 

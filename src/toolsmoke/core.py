@@ -33,6 +33,7 @@ class Config:
     warn_ttft_ms: float = 3000.0
     warn_tps: float = 15.0
     perf_runs: int = 3
+    preset: Optional[str] = None
 
 
 @dataclass
@@ -327,6 +328,12 @@ def run_probe(p: Probe, ctx: Ctx) -> Result:
         out = Outcome(FAIL, f"connection error: {e}")
     except Exception as e:  # a bug in the probe or a truly weird response
         out = Outcome(FAIL, f"unexpected response ({type(e).__name__}: {e})")
+    if out.status in (FAIL, WARN) and ctx.cfg.preset:
+        from .presets import quirk_hint
+
+        hint = quirk_hint(ctx.cfg.preset, p.id)
+        if hint and hint not in out.detail:
+            out = Outcome(out.status, f"{out.detail} [{hint}]", out.metrics)
     return Result(p.id, p.group, p.title, out.status, out.detail, time.perf_counter() - t0, out.metrics)
 
 

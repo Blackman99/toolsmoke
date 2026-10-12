@@ -36,10 +36,11 @@ DEFECTS: Dict[str, str] = {
     "ignore_stop": "stop sequences are ignored",
     "no_anthropic": "POST /v1/messages returns 404",
     "drop_extra_tool_results": "only the first of several tool results is seen",
+    "bad_nested_args": "nested tool arguments are flattened (object/array structure lost)",
 }
 BROKEN_DEFAULT = [
     "stream_tool_leak", "ignore_tool_choice", "no_parallel", "no_usage", "think_in_content",
-    "ignore_json_schema", "bad_errors", "ignore_stop", "no_anthropic",
+    "ignore_json_schema", "bad_errors", "ignore_stop", "no_anthropic", "bad_nested_args",
 ]
 
 CITIES = ["Paris", "Tokyo", "Berlin", "London", "New York", "Madrid", "Rome", "Sydney"]
@@ -70,6 +71,7 @@ class Conv:
     response_format: Any = None  # None | "json_object" | ("json_schema", schema)
     stop: List[str] = field(default_factory=list)
     max_tokens: Optional[int] = None
+    parallel_tool_calls: Optional[bool] = None
 
     @property
     def last_user(self) -> str:
@@ -100,7 +102,8 @@ def extract_cities(text: str) -> List[str]:
     return [c for _, c in sorted(found)]
 
 
-def args_for(name: str, text: str, tools: List[Dict[str, Any]]) -> Dict[str, Any]:
+def args_for(name: str, text: str, tools: List[Dict[str, Any]], defects: Optional[set] = None) -> Dict[str, Any]:
+    defects = defects or set()
     if name == "get_weather":
         args: Dict[str, Any] = {"city": (extract_cities(text) or ["Paris"])[0]}
         if "fahrenheit" in text.lower():
@@ -108,6 +111,17 @@ def args_for(name: str, text: str, tools: List[Dict[str, Any]]) -> Dict[str, Any
         return args
     if name == "get_time":
         return {"timezone": "Europe/Paris"}
+    if name == "search_flights":
+        cities = extract_cities(text) or ["Paris", "Tokyo"]
+        from_city = cities[0]
+        to_city = cities[1] if len(cities) > 1 else "Tokyo"
+        if "bad_nested_args" in defects:
+            # Flatten: lose nested trip object and passengers array structure.
+            return {"from_city": from_city, "to_city": to_city, "passengers": "Alice, Bob"}
+        return {
+            "trip": {"from_city": from_city, "to_city": to_city, "date": "2026-11-01"},
+            "passengers": ["Alice", "Bob"],
+        }
     schema = next((t["schema"] for t in tools if t["name"] == name), {})
     return sample(schema) if schema else {}
 
@@ -134,15 +148,20 @@ def decide(conv: Conv, defects: set) -> Reply:
     if conv.tools and tc != "none":
         calls: List[Tuple[str, Dict[str, Any]]] = []
         if isinstance(tc, tuple) and tc[1] in names:
-            calls = [(tc[1], args_for(tc[1], user, conv.tools))]
+            calls = [(tc[1], args_for(tc[1], user, conv.tools, defects))]
+        elif ("flight" in low or "passenger" in low) and "search_flights" in names:
+            calls = [("search_flights", args_for("search_flights", user, conv.tools, defects))]
         elif "weather" in low and "get_weather" in names:
             unit = {"unit": "fahrenheit"} if "fahrenheit" in low else {}
             calls = [("get_weather", {"city": c, **unit}) for c in (extract_cities(user) or ["Paris"])]
         elif "time" in low and "get_time" in names:
             calls = [("get_time", {"timezone": "Europe/Paris"})]
         elif tc == "required":
-            calls = [(names[0], args_for(names[0], user, conv.tools))]
+            calls = [(names[0], args_for(names[0], user, conv.tools, defects))]
         if calls:
+            # Honour parallel_tool_calls=false unless a defect forces single-call anyway.
+            if conv.parallel_tool_calls is False:
+                calls = calls[:1]
             if "no_parallel" in defects:
                 calls = calls[:1]
             return Reply(calls=calls, finish="tool_calls")
@@ -252,6 +271,8 @@ def parse_openai(body: Dict[str, Any]) -> Conv:
     stop = body.get("stop")
     conv.stop = [stop] if isinstance(stop, str) else list(stop or [])
     conv.max_tokens = body.get("max_tokens") or body.get("max_completion_tokens")
+    if "parallel_tool_calls" in body:
+        conv.parallel_tool_calls = bool(body.get("parallel_tool_calls"))
     return conv
 
 

@@ -35,8 +35,43 @@ TIME_TOOL = {
     },
 }
 
+
+FLIGHT_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "trip": {
+            "type": "object",
+            "properties": {
+                "from_city": {"type": "string", "description": "Departure city"},
+                "to_city": {"type": "string", "description": "Arrival city"},
+                "date": {"type": "string", "description": "Departure date YYYY-MM-DD"},
+            },
+            "required": ["from_city", "to_city"],
+            "additionalProperties": False,
+        },
+        "passengers": {
+            "type": "array",
+            "items": {"type": "string"},
+            "minItems": 1,
+            "description": "Passenger names",
+        },
+    },
+    "required": ["trip", "passengers"],
+    "additionalProperties": False,
+}
+
+FLIGHT_TOOL = {
+    "type": "function",
+    "function": {
+        "name": "search_flights",
+        "description": "Search flights for a trip with nested route details and a passenger list.",
+        "parameters": FLIGHT_SCHEMA,
+    },
+}
+
 TOOLS = [WEATHER_TOOL, TIME_TOOL]
-SCHEMAS = {"get_weather": WEATHER_SCHEMA, "get_time": TIME_SCHEMA}
+SCHEMAS = {"get_weather": WEATHER_SCHEMA, "get_time": TIME_SCHEMA, "search_flights": FLIGHT_SCHEMA}
+NESTED_TOOLS = TOOLS + [FLIGHT_TOOL]
 
 SYSTEM_TOOLS = "You are a helpful assistant. Use the provided tools whenever they are relevant."
 

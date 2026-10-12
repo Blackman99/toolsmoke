@@ -13,10 +13,11 @@ Everything here serves [GOAL.md](GOAL.md): one command that tells you whether an
 
 ## v0.2 — More providers, more probes
 
-- Provider presets (`--preset ollama|vllm|llamacpp|lmstudio|sglang|openrouter|litellm`) with known-quirk hints in failure details
+- ✅ Provider presets (`--preset ollama|vllm|llamacpp|lmstudio|sglang|openrouter|litellm`) with known-quirk hints in failure details
 - OpenAI **Responses API** probes (`/v1/responses`: function calls, streaming events)
 - Native Ollama API (`/api/chat`) tool-calling probes
-- Probes: tool calls with nested/array arguments, enum adherence, long tool results, tool call after a long context, `parallel_tool_calls=false`, `n>1`, `logprobs`, image input (opt-in)
+- ✅ Probes: `tools.nested_args` (nested object/array tool arguments), `tools.no_parallel` (`parallel_tool_calls=false`)
+- Probes still open: enum adherence, long tool results, tool call after a long context, `n>1`, `logprobs`, image input (opt-in)
 - Repeat mode (`--repeat N`) to measure flakiness: pass rate per probe instead of one-shot result
 - Config file (`toolsmoke.toml`) for many endpoints
 

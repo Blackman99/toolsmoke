@@ -1,13 +1,14 @@
 # Configuration
 
-Everything is a CLI flag; the endpoint can also come from environment variables. There is no config file in v0.1.
+Everything is a CLI flag; the endpoint can also come from environment variables. There is no config file yet (planned for a later release).
 
 ## Endpoint
 
 | Flag | Env | Default | Description |
 |---|---|---|---|
-| `--base-url URL` | `TOOLSMOKE_BASE_URL` | — (required) | OpenAI-compatible base, e.g. `http://localhost:8080/v1` |
-| `--model, -m NAME` | `TOOLSMOKE_MODEL` | — (required) | Model name sent in every request |
+| `--base-url URL` | `TOOLSMOKE_BASE_URL` | — (required unless `--preset`) | OpenAI-compatible base, e.g. `http://localhost:8080/v1` |
+| `--preset NAME` | `TOOLSMOKE_PRESET` | — | Provider preset: `ollama`, `vllm`, `llamacpp`, `lmstudio`, `sglang`, `openrouter`, `litellm`. Fills `--base-url` when you omit it, and appends short known-quirk hints to FAIL/WARN detail lines |
+| `--model, -m NAME` | `TOOLSMOKE_MODEL` | — (required) | Model name sent in every request (presets never invent a model name) |
 | `--api-key-env NAME` | — | `OPENAI_API_KEY` | Name of the env var that holds the API key |
 | — | `TOOLSMOKE_API_KEY` | — | If set, always used as the key (overrides `--api-key-env`) |
 | `--header, -H 'K: V'` | — | — | Extra HTTP header, repeatable (e.g. `-H 'OpenAI-Organization: org_x'`) |
@@ -17,6 +18,28 @@ The key is sent as `Authorization: Bearer <key>`. For the Messages API it is als
 
 !!! tip "Keys never go on the command line"
     Shell history and CI logs are where keys leak. Use an env var: `MY_KEY=… toolsmoke --api-key-env MY_KEY …`
+
+## Provider presets
+
+`--preset` is optional. Bare `--base-url` still works. When a preset is set and `--base-url` / `TOOLSMOKE_BASE_URL` are omitted, these defaults are used:
+
+| Preset | Default `--base-url` |
+|---|---|
+| `ollama` | `http://localhost:11434/v1` |
+| `vllm` | `http://localhost:8000/v1` |
+| `llamacpp` | `http://localhost:8080/v1` |
+| `lmstudio` | `http://localhost:1234/v1` |
+| `sglang` | `http://localhost:30000/v1` |
+| `openrouter` | `https://openrouter.ai/api/v1` |
+| `litellm` | `http://localhost:4000/v1` |
+
+An explicit `--base-url` always wins. For `openrouter` / `litellm`, pass the API key via the existing env vars (`OPENAI_API_KEY` / `TOOLSMOKE_API_KEY`). On FAIL/WARN, a short known-quirk hint for that provider may be appended to the probe detail (only when it helps diagnose that probe).
+
+```bash
+toolsmoke --preset ollama --model llama3.1
+toolsmoke --preset vllm --model meta-llama/Meta-Llama-3-8B-Instruct
+OPENAI_API_KEY=sk-... toolsmoke --preset openrouter --model anthropic/claude-3.5-sonnet
+```
 
 ## Anthropic Messages API
 
@@ -73,4 +96,4 @@ The key is sent as `Authorization: Bearer <key>`. For the Messages API it is als
 | `--model-name NAME` | `mock-model` | Model id(s) to serve, repeatable |
 | `--list-defects` | | Show all defects |
 
-Defects: `stream_tool_leak`, `leak_tool_calls`, `ignore_tool_choice`, `no_parallel`, `no_usage`, `think_in_content`, `ignore_json_schema`, `bad_errors`, `ignore_stop`, `no_anthropic`, `drop_extra_tool_results`.
+Defects: `stream_tool_leak`, `leak_tool_calls`, `ignore_tool_choice`, `no_parallel`, `no_usage`, `think_in_content`, `ignore_json_schema`, `bad_errors`, `ignore_stop`, `no_anthropic`, `drop_extra_tool_results`, `bad_nested_args`.

@@ -53,7 +53,7 @@
   <div class="title">
     <p class="kicker">Inspection report · agent readiness of an OpenAI-compatible endpoint</p>
     <h1 id="title"><span class="q">“OpenAI&#8209;compatible”</span> is <em>not</em> a test result.</h1>
-    <p class="lede">Your server answers chat. Agents need more: real <code>tool_calls</code> instead of <code>&lt;tool_call&gt;</code> text, an enforced <code>tool_choice</code>, streamed arguments that parse, JSON that fits the schema. <strong>toolsmoke</strong> runs 31 probes against your endpoint and issues a pass/warn/fail verdict, time-to-first-token, tokens/sec and an exit code.</p>
+    <p class="lede">Your server answers chat. Agents need more: real <code>tool_calls</code> instead of <code>&lt;tool_call&gt;</code> text, an enforced <code>tool_choice</code>, streamed arguments that parse, JSON that fits the schema. <strong>toolsmoke</strong> runs 33 probes against your endpoint and issues a pass/warn/fail verdict, time-to-first-token, tokens/sec and an exit code.</p>
     <div class="typed" data-copy>
       <span class="typed-lbl">Try it without a model:</span>
       <code><span class="pr">$</span> uvx --from git+https://github.com/Blackman99/toolsmoke toolsmoke --demo broken</code>
@@ -65,7 +65,7 @@
   <dl class="form" aria-label="Report particulars">
     <div><dt>Specimen</dt><dd>llama.cpp b11490 <span>(<code>llama-server --jinja</code>)</span></dd></div>
     <div><dt>Model</dt><dd>Qwen2.5-0.5B-Instruct · 8 CPU cores</dd></div>
-    <div><dt>Method</dt><dd>toolsmoke <code>--anthropic</code> · 31 probes · temperature 0</dd></div>
+    <div><dt>Method</dt><dd>toolsmoke <code>--anthropic</code> · 33 probes · temperature 0</dd></div>
     <div><dt>Results</dt><dd id="f-results">awaiting print</dd></div>
     <div class="half"><dt>TTFT p50</dt><dd id="f-ttft">—</dd></div><div class="half h2"><dt>Throughput</dt><dd id="f-tps">—</dd></div>
     <div class="verdict"><dt>Verdict</dt><dd><span id="f-verdict"><span class="blank">________________</span></span>
@@ -130,13 +130,13 @@
   <div class="sec-no" aria-hidden="true">§3</div>
   <header class="sec-title">
     <p class="kicker">Sheet 3 of 5 · test schedule</p>
-    <h2 id="sched-h">31 probes. One verdict.</h2>
+    <h2 id="sched-h">33 probes. One verdict.</h2>
     <p class="intro">Trivial prompts, <code>temperature: 0</code>, deterministic checks. A failure means the serving stack is broken, not that the model is dumb. Marks show the sample run; hover or focus a probe for its observation.</p>
   </header>
   <ol class="sched" id="sched">
     <li data-g="basics"><span class="gn">3.1</span><span class="gt">Basics</span><span class="lead" aria-hidden="true"></span><span class="gc"></span><p>models list, system prompt, multi-turn memory, stop sequences, <code>max_tokens</code> + <code>finish_reason</code></p></li>
     <li data-g="streaming"><span class="gn">3.2</span><span class="gt">Streaming</span><span class="lead" aria-hidden="true"></span><span class="gc"></span><p>SSE deltas, <code>[DONE]</code>, <code>finish_reason</code>, <code>stream_options.include_usage</code></p></li>
-    <li data-g="tools"><span class="gn">3.3</span><span class="gt">Tool calling</span><span class="lead" aria-hidden="true"></span><span class="gc"></span><p>single, schema-valid args, parallel with distinct ids, <code>tool_choice</code> none / required / named, markup leaks, tool-result round trips, streamed deltas</p></li>
+    <li data-g="tools"><span class="gn">3.3</span><span class="gt">Tool calling</span><span class="lead" aria-hidden="true"></span><span class="gc"></span><p>single, schema-valid and nested args, parallel / <code>parallel_tool_calls=false</code>, <code>tool_choice</code> none / required / named, markup leaks, tool-result round trips, streamed deltas</p></li>
     <li data-g="structured"><span class="gn">3.4</span><span class="gt">Structured output</span><span class="lead" aria-hidden="true"></span><span class="gc"></span><p><code>json_object</code> mode and strict <code>json_schema</code>, validated</p></li>
     <li data-g="reasoning"><span class="gn">3.5</span><span class="gt">Reasoning</span><span class="lead" aria-hidden="true"></span><span class="gc"></span><p>thinking arrives in <code>reasoning_content</code>, not as <code>&lt;think&gt;</code> in the answer</p></li>
     <li data-g="errors"><span class="gn">3.6</span><span class="gt">Errors</span><span class="lead" aria-hidden="true"></span><span class="gc"></span><p>unknown model, malformed request, bad key → clean 4xx, not 500 or a silent 200</p></li>

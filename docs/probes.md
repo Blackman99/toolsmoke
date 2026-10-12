@@ -1,8 +1,8 @@
 # Probe reference
 
-31 probes in 8 groups, run in this order. Every probe uses `temperature: 0` and trivial prompts, so a failure points at the server, chat template or parser, not at model quality.
+33 probes in 8 groups, run in this order. Every probe uses `temperature: 0` and trivial prompts, so a failure points at the server, chat template or parser, not at model quality.
 
-Tools used by the probes: `get_weather(city: string, unit?: "celsius"|"fahrenheit")` and `get_time(timezone: string)`.
+Tools used by the probes: `get_weather(city: string, unit?: "celsius"|"fahrenheit")`, `get_time(timezone: string)`, and (for nested args) `search_flights(trip: {from_city, to_city, date?}, passengers: string[])`.
 
 ## basics
 
@@ -28,7 +28,9 @@ Tools used by the probes: `get_weather(city: string, unit?: "celsius"|"fahrenhei
 |---|---|---|---|
 | `tools.single` | "Weather in Paris?" produces one structured `get_weather` call with JSON-object arguments, an id, and `finish_reason: "tool_calls"` | Wrong city or `finish_reason` | No `tool_calls`; markup leaked into `content`; arguments not valid JSON; wrong tool |
 | `tools.args_schema` | Arguments validate against the tool schema (required, enum) | Valid but `unit` not `fahrenheit` | Schema violation |
+| `tools.nested_args` | `search_flights` with nested `trip` object and `passengers` array | Nested OK but cities missing | Args don't parse / don't match nested schema |
 | `tools.parallel` | "Paris and Tokyo" yields 2 calls with distinct ids | Only one call | Duplicate ids (results can't be matched) |
+| `tools.no_parallel` | `parallel_tool_calls: false` yields exactly one call | Flag ignored (2+ calls) or HTTP 400/422 rejecting the field | No calls / leak / schema problems |
 | `tools.choice_none` | `tool_choice: "none"` answers in text | — | Tool called anyway, or tool-call markup printed as text |
 | `tools.choice_required` | `tool_choice: "required"` forces a call even for "say hello" | — | No call |
 | `tools.choice_named` | `tool_choice: {"type":"function","function":{"name":"get_time"}}` forces that tool | — | Another tool or no call |
