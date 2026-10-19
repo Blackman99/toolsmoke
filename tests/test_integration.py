@@ -25,12 +25,15 @@ BROKEN_EXPECTED = {
     "anthropic.stream": "fail",
     "anthropic.tools": "fail",
     "anthropic.tool_result": "fail",
+    "responses.basic": "warn",
+    "responses.stream_tools": "fail",
 }
 
 
 def run(tmp_path, url, *extra, env_key=None, monkeypatch=None):
     out = tmp_path / "r.json"
-    code = cli.main(["--base-url", url, "--model", "mock-model", "--anthropic", "--quiet", "--perf-runs", "1",
+    code = cli.main(["--base-url", url, "--model", "mock-model", "--anthropic", "--responses", "--quiet",
+                     "--perf-runs", "1",
                      "--json", str(out), *extra])
     return code, json.loads(out.read_text(encoding="utf-8"))
 

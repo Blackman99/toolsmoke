@@ -76,7 +76,7 @@ $ toolsmoke --base-url http://localhost:8080/v1 --model qwen --anthropic
   perf.ttft               PASS     917ms  p50 22 ms (min 19, max 50, n=3)
   perf.throughput         PASS      4.2s  62.4 tok/s (256 tokens via usage, 4.2s total)
 
-  TTFT p50 22 ms · 62.4 tok/s · 25 pass · 3 warn · 3 fail · 2 skip
+  TTFT p50 22 ms · 62.4 tok/s · 25 pass · 3 warn · 3 fail · 7 skip
   NOT AGENT-READY: 3 failing probes
 ```
 

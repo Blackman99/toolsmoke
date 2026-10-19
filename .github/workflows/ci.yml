@@ -77,6 +77,8 @@ jobs:
           model: mock-model
           api-key: sk-ci
           anthropic: "true"
+          responses: "true"
+          repeat: "2"
           strict: "true"
       - name: Broken endpoint is caught
         id: broken

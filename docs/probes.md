@@ -1,6 +1,6 @@
 # Probe reference
 
-33 probes in 8 groups, run in this order. Every probe uses `temperature: 0` and trivial prompts, so a failure points at the server, chat template or parser, not at model quality.
+38 probes in 9 groups, run in this order. Every probe uses `temperature: 0` and trivial prompts, so a failure points at the server, chat template or parser, not at model quality.
 
 Tools used by the probes: `get_weather(city: string, unit?: "celsius"|"fahrenheit")`, `get_time(timezone: string)`, and (for nested args) `search_flights(trip: {from_city, to_city, date?}, passengers: string[])`.
 
@@ -73,6 +73,18 @@ SKIP when the model returns no reasoning (normal for non-reasoning models).
 | `anthropic.stream` | Streaming emits `message_start`, `content_block_start`, `content_block_delta` (`text_delta`), `content_block_stop`, `message_delta`, `message_stop` | Some events missing | No text deltas, non-JSON data |
 | `anthropic.tools` | A `tool_use` block with an id and object `input`, `stop_reason: "tool_use"` | Wrong `stop_reason` | No `tool_use`, markup in text, bad input |
 | `anthropic.tool_result` | A `tool_result` block is accepted and used | Tool called again | Ignored or rejected |
+
+## responses (opt-in: `--responses`)
+
+The OpenAI Responses API (`POST /v1/responses`) is what the OpenAI Agents SDK, Codex CLI and other newer agent stacks call instead of chat completions. Tool calls come back as top-level `function_call` output items, tool results go in as `function_call_output` input items, and streaming uses typed `response.*` events, so a server can get chat completions right and still break these clients.
+
+| Probe | Checks | WARN | FAIL |
+|---|---|---|---|
+| `responses.basic` | Returns `object: "response"`, `status: "completed"`, a `message` item with `output_text`, usage | Missing fields | HTTP error / no `output` array / no text |
+| `responses.stream` | Streaming emits `response.created`, `response.output_item.added`, `response.output_text.delta`, `response.output_item.done`, `response.completed` | Some events missing | No text deltas, non-JSON data, `response.failed` |
+| `responses.tools` | A `function_call` item with `call_id`, `name` and JSON-string `arguments` valid against the schema | | No call, markup in `output_text`, bad arguments |
+| `responses.stream_tools` | `response.function_call_arguments.delta` events assemble into valid arguments that match `output_item.done` | Arguments only in the final item, or deltas and final item disagree | No call, markup in streamed text, invalid JSON |
+| `responses.tool_result` | A `function_call_output` input item is accepted and used | Tool called again | Ignored or rejected |
 
 ## performance
 

@@ -48,6 +48,12 @@ OPENAI_API_KEY=sk-... toolsmoke --preset openrouter --model anthropic/claude-3.5
 | `--anthropic` | off | Run the `anthropic.*` probes |
 | `--anthropic-base-url URL` | `--base-url` (with `/v1` appended if missing) | Where `POST …/messages` lives |
 
+## OpenAI Responses API
+
+| Flag | Default | Description |
+|---|---|---|
+| `--responses` | off | Run the `responses.*` probes against `POST <base-url>/responses` [env `TOOLSMOKE_RESPONSES=1`] |
+
 ## Probe selection
 
 | Flag | Description |
@@ -73,6 +79,7 @@ OPENAI_API_KEY=sk-... toolsmoke --preset openrouter --model anthropic/claude-3.5
 | `--max-ttft MS` | — | FAIL `perf.ttft` above this median TTFT (otherwise WARN only above 3000 ms) |
 | `--min-tps N` | — | FAIL `perf.throughput` below this (otherwise WARN only below 15 tok/s) |
 | `--perf-runs N` | `3` | Streamed requests used for the TTFT median |
+| `--repeat N` | `1` | Run every probe N times (1–100); the worst run counts and the detail shows the pass rate [env `TOOLSMOKE_REPEAT`] |
 
 ## Output
 
@@ -96,4 +103,4 @@ OPENAI_API_KEY=sk-... toolsmoke --preset openrouter --model anthropic/claude-3.5
 | `--model-name NAME` | `mock-model` | Model id(s) to serve, repeatable |
 | `--list-defects` | | Show all defects |
 
-Defects: `stream_tool_leak`, `leak_tool_calls`, `ignore_tool_choice`, `no_parallel`, `no_usage`, `think_in_content`, `ignore_json_schema`, `bad_errors`, `ignore_stop`, `no_anthropic`, `drop_extra_tool_results`, `bad_nested_args`.
+Defects: `stream_tool_leak`, `leak_tool_calls`, `ignore_tool_choice`, `no_parallel`, `no_usage`, `think_in_content`, `ignore_json_schema`, `bad_errors`, `ignore_stop`, `no_anthropic`, `drop_extra_tool_results`, `bad_nested_args`, `no_responses`, `flaky_tools`.

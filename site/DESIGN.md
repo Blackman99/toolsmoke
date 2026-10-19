@@ -3,7 +3,7 @@
 ## Reference object
 
 A **laboratory inspection report**: the stapled, hole-punched test certificate an accredited test lab issues for a specimen.
-The specimen is your LLM endpoint. The test method is the 31 toolsmoke probes, and the result is a signed sheet with a
+The specimen is your LLM endpoint. The test method is the 38 toolsmoke probes, and the result is a signed sheet with a
 red rubber stamp. Everything on the page comes from that paper object, not from web UI conventions:
 
 - off-white report paper with a faint graph-paper grid, binder holes in the left margin, and a perforated edge

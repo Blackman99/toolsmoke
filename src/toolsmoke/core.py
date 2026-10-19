@@ -24,6 +24,7 @@ class Config:
     headers: Dict[str, str] = field(default_factory=dict)
     anthropic: bool = False
     anthropic_base_url: Optional[str] = None
+    responses: bool = False
     require_reasoning: bool = False
     temperature: Optional[float] = 0.0
     token_param: str = "max_tokens"
@@ -34,6 +35,7 @@ class Config:
     warn_tps: float = 15.0
     perf_runs: int = 3
     preset: Optional[str] = None
+    repeat: int = 1
 
 
 @dataclass
@@ -75,7 +77,7 @@ class Probe:
     group: str
     title: str
     fn: Callable[["Ctx"], Outcome]
-    needs: Optional[str] = None  # "anthropic" | "api_key"
+    needs: Optional[str] = None  # "anthropic" | "responses" | "api_key"
 
 
 REGISTRY: List[Probe] = []
@@ -317,6 +319,8 @@ def select(probes: List[Probe], only: List[str], skip: List[str]) -> List[Probe]
 def run_probe(p: Probe, ctx: Ctx) -> Result:
     if p.needs == "anthropic" and not ctx.cfg.anthropic:
         return Result(p.id, p.group, p.title, SKIP, "Anthropic probes off (use --anthropic)", 0.0)
+    if p.needs == "responses" and not ctx.cfg.responses:
+        return Result(p.id, p.group, p.title, SKIP, "Responses API probes off (use --responses)", 0.0)
     if p.needs == "api_key" and not ctx.cfg.api_key:
         return Result(p.id, p.group, p.title, SKIP, "no API key configured", 0.0)
     t0 = time.perf_counter()
@@ -335,6 +339,44 @@ def run_probe(p: Probe, ctx: Ctx) -> Result:
         if hint and hint not in out.detail:
             out = Outcome(out.status, f"{out.detail} [{hint}]", out.metrics)
     return Result(p.id, p.group, p.title, out.status, out.detail, time.perf_counter() - t0, out.metrics)
+
+
+def run_repeated(p: Probe, ctx: Ctx, n: int, on_run: Optional[Callable[[int], None]] = None) -> Result:
+    """Run a probe n times and fold the runs into one result.
+
+    The worst status wins (an agent loop that breaks one time in five is
+    broken), and the detail leads with the pass rate so flakiness is visible.
+    """
+    runs: List[Result] = []
+    for k in range(max(1, n)):
+        if on_run:
+            on_run(k + 1)
+        r = run_probe(p, ctx)
+        runs.append(r)
+        if r.status == SKIP and k == 0:
+            return r  # skips are deterministic (opt-in off, no key)
+    return aggregate(runs)
+
+
+def aggregate(runs: List[Result]) -> Result:
+    n = len(runs)
+    if n == 1:
+        return runs[0]
+    counts = {s: sum(1 for r in runs if r.status == s) for s in (PASS, WARN, FAIL, SKIP)}
+    active = [r for r in runs if r.status != SKIP] or runs
+    worst = min(active, key=lambda r: STATUS_ORDER[r.status])
+    rate = counts[PASS] / len(active) if active else 0.0
+    if len({r.status for r in runs}) == 1:
+        lead = f"{n}/{n} {worst.status}"
+    else:
+        others = ", ".join(f"{counts[s]} {s}" for s in (FAIL, WARN, SKIP) if counts[s])
+        lead = f"flaky: {counts[PASS]}/{n} pass, {others}"
+    times = sorted(r.elapsed for r in runs)
+    metrics = dict(worst.metrics)
+    metrics["repeat"] = {"runs": n, "pass": counts[PASS], "warn": counts[WARN], "fail": counts[FAIL],
+                         "skip": counts[SKIP], "pass_rate": round(rate, 3)}
+    return Result(worst.id, worst.group, worst.title, worst.status, f"{lead} · {worst.detail}",
+                  times[len(times) // 2], metrics)
 
 
 def summarize(results: List[Result]) -> Dict[str, int]:

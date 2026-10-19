@@ -20,6 +20,14 @@ inputs:
     description: "Also probe the Anthropic Messages API (true/false)"
     required: false
     default: "false"
+  responses:
+    description: "Also probe the OpenAI Responses API, POST /v1/responses (true/false)"
+    required: false
+    default: "false"
+  repeat:
+    description: "Run every probe N times; the worst run counts (catches flaky tool calling)"
+    required: false
+    default: "1"
   only:
     description: "Comma-separated probe id/group globs to run, e.g. 'tools.*,stream.*'"
     required: false
@@ -102,6 +110,8 @@ runs:
         IN_BASE_URL: ${{ inputs.base-url }}
         IN_MODEL: ${{ inputs.model }}
         IN_ANTHROPIC: ${{ inputs.anthropic }}
+        IN_RESPONSES: ${{ inputs.responses }}
+        IN_REPEAT: ${{ inputs.repeat }}
         IN_ONLY: ${{ inputs.only }}
         IN_SKIP: ${{ inputs.skip }}
         IN_STRICT: ${{ inputs.strict }}
@@ -114,6 +124,8 @@ runs:
       run: |
         args=(--base-url "$IN_BASE_URL" --model "$IN_MODEL" --json "$IN_REPORT" --markdown "$GITHUB_STEP_SUMMARY" --quiet)
         [ "$IN_ANTHROPIC" = "true" ] && args+=(--anthropic)
+        [ "$IN_RESPONSES" = "true" ] && args+=(--responses)
+        [ -n "$IN_REPEAT" ] && [ "$IN_REPEAT" != "1" ] && args+=(--repeat "$IN_REPEAT")
         [ "$IN_STRICT" = "true" ] && args+=(--strict)
         [ -n "$IN_MAX_TTFT" ] && args+=(--max-ttft "$IN_MAX_TTFT")
         [ -n "$IN_MIN_TPS" ] && args+=(--min-tps "$IN_MIN_TPS")

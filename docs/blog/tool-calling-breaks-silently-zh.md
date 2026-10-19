@@ -76,11 +76,11 @@ $ toolsmoke --base-url http://localhost:8080/v1 --model qwen --anthropic
   perf.ttft               PASS     917ms  p50 22 ms (min 19, max 50, n=3)
   perf.throughput         PASS      4.2s  62.4 tok/s (256 tokens via usage, 4.2s total)
 
-  TTFT p50 22 ms · 62.4 tok/s · 25 pass · 3 warn · 3 fail · 2 skip
+  TTFT p50 22 ms · 62.4 tok/s · 25 pass · 3 warn · 3 fail · 7 skip
   NOT AGENT-READY: 3 failing probes
 ```
 
-（完整的 33 行输出见 [README](https://github.com/Blackman99/toolsmoke#usage)。）
+（完整输出见 [README](https://github.com/Blackman99/toolsmoke#usage)。）
 
 大部分都通过了：结构化的工具调用、符合 schema 的参数、并行调用、流式增量、工具结果回传、严格 JSON schema，连 Anthropic Messages 接口都没问题。三个失败全都跟 `tool_choice` 有关：
 

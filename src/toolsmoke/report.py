@@ -66,7 +66,8 @@ def table(results: List[Result], cfg: Config, strict: bool = False, color: Optio
     width = max(80, min(width, 160))
     idw = max([len(r.id) for r in results] + [5])
     lines = [
-        _c(f"toolsmoke {__version__}", "1", on) + f" · {cfg.base_url} · model {cfg.model}",
+        _c(f"toolsmoke {__version__}", "1", on) + f" · {cfg.base_url} · model {cfg.model}"
+        + (f" · repeat {cfg.repeat}" if cfg.repeat > 1 else ""),
         "",
         "  " + _c(f"{'PROBE':<{idw}}  {'RESULT':<6}  {'TIME':>6}  DETAIL", "1", on),
     ]
@@ -96,6 +97,8 @@ def to_json(results: List[Result], cfg: Config, strict: bool = False) -> Dict[st
         "endpoint": cfg.base_url,
         "model": cfg.model,
         "anthropic": cfg.anthropic,
+        "responses": cfg.responses,
+        "repeat": cfg.repeat,
         "summary": summarize(results),
         "performance": headline(results),
         "verdict": verdict(results, strict),
@@ -118,7 +121,7 @@ def markdown(results: List[Result], cfg: Config, strict: bool = False) -> str:
     out = [
         f"### toolsmoke: {verdict(results, strict)}",
         "",
-        f"`{cfg.model}` @ `{cfg.base_url}` · {s[PASS]} pass · {s[WARN]} warn · {s[FAIL]} fail · {s[SKIP]} skip"
+        f"`{cfg.model}` @ `{cfg.base_url}`" + (f" · repeat {cfg.repeat}" if cfg.repeat > 1 else "") + f" · {s[PASS]} pass · {s[WARN]} warn · {s[FAIL]} fail · {s[SKIP]} skip"
         + (" · " + " · ".join(perf) if perf else ""),
         "",
         "| Probe | Result | Time | Detail |",

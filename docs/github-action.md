@@ -24,6 +24,8 @@ The action installs toolsmoke (no other dependencies), runs it, appends a Markdo
 | `model` | required | Model name |
 | `api-key` | `""` | API key; pass a secret |
 | `anthropic` | `false` | Also probe the Messages API |
+| `responses` | `false` | Also probe the OpenAI Responses API |
+| `repeat` | `1` | Run every probe N times to catch flaky behaviour |
 | `only` / `skip` | `""` | Comma-separated globs, e.g. `tools.*,stream.*` |
 | `strict` | `false` | Fail on warnings too |
 | `max-ttft` / `min-tps` | `""` | Hard speed gates |

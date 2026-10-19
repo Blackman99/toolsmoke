@@ -56,7 +56,7 @@ toolsmoke ... --only tools                        # a whole group
 toolsmoke ... --skip perf --skip errors           # everything except these
 ```
 
-Groups: `basics`, `streaming`, `tools`, `structured`, `reasoning`, `errors`, `anthropic`, `performance`.
+Groups: `basics`, `streaming`, `tools`, `structured`, `reasoning`, `errors`, `anthropic`, `responses`, `performance`.
 
 ## Anthropic Messages API
 
@@ -68,6 +68,30 @@ toolsmoke --base-url http://localhost:8080/v1 --model qwen --anthropic
 toolsmoke --base-url https://gw.example.com/openai/v1 --model m --anthropic \
           --anthropic-base-url https://gw.example.com/anthropic/v1
 ```
+
+## OpenAI Responses API
+
+The OpenAI Agents SDK, Codex CLI and other newer clients call `POST /v1/responses` instead of chat completions. vLLM, Ollama, LM Studio, LiteLLM and many gateways serve it too. Add `--responses` to probe it on the same base URL:
+
+```bash
+toolsmoke --base-url http://localhost:8000/v1 --model qwen3 --responses
+```
+
+## Flaky endpoints: `--repeat`
+
+A tool parser that breaks one request in five passes most single runs and still wrecks a long agent loop. `--repeat N` runs every probe N times. The worst run decides the result, and the detail line starts with the pass rate:
+
+```console
+$ toolsmoke-mock --port 8080 --defects flaky_tools &    # leaks every other tool call
+$ toolsmoke --base-url http://127.0.0.1:8080/v1 --model mock-model --only tools.single --only tools.clean_content --repeat 4
+  PROBE                RESULT    TIME  DETAIL
+  tools.single         FAIL      52ms  flaky: 2/4 pass, 2 fail · tool call leaked into content as text: '<tool_call> …
+  tools.clean_content  FAIL      52ms  flaky: 2/4 pass, 2 fail · tool call leaked into content as text: '<tool_call> …
+```
+
+Without `--repeat` the same server looks fine on a lucky run.
+
+The JSON report gets `"repeat": 4` at the top and, per probe, `metrics.repeat` with the counts and `pass_rate`.
 
 ## Output formats
 
@@ -83,8 +107,8 @@ JSON report shape:
 ```json
 {
   "tool": "toolsmoke", "version": "0.1.1",
-  "endpoint": "http://localhost:8080/v1", "model": "qwen", "anthropic": true,
-  "summary": {"pass": 25, "warn": 3, "fail": 3, "skip": 2},
+  "endpoint": "http://localhost:8080/v1", "model": "qwen", "anthropic": true, "responses": false, "repeat": 1,
+  "summary": {"pass": 25, "warn": 3, "fail": 3, "skip": 7},
   "performance": {"ttft_ms_p50": 22.0, "tokens_per_sec": 62.4},
   "verdict": "NOT AGENT-READY: 3 failing probes",
   "results": [

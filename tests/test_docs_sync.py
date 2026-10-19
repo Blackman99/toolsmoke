@@ -66,7 +66,7 @@ def test_landing_page_terminal_matches_readme(sample):
 def test_probe_counts_and_json_example_match_readme(sample):
     n = len(sample["rows"])
     assert f"{n} probes. One verdict." in _read("site/index.html")
-    assert f"{n} probes in 8 groups" in _read("docs/probes.md")
+    assert f"{n} probes in 9 groups" in _read("docs/probes.md")
     assert f"each of the {n} probes" in _read("docs/index.md")
     ttft, tps, p, w, f, s = sample["nums"]
     usage = _read("docs/usage.md")

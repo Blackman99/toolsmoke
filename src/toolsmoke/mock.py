@@ -37,6 +37,8 @@ DEFECTS: Dict[str, str] = {
     "no_anthropic": "POST /v1/messages returns 404",
     "drop_extra_tool_results": "only the first of several tool results is seen",
     "bad_nested_args": "nested tool arguments are flattened (object/array structure lost)",
+    "no_responses": "POST /v1/responses returns 404",
+    "flaky_tools": "every other non-streamed tool call leaks as <tool_call> text (for --repeat)",
 }
 BROKEN_DEFAULT = [
     "stream_tool_leak", "ignore_tool_choice", "no_parallel", "no_usage", "think_in_content",
@@ -276,6 +278,53 @@ def parse_openai(body: Dict[str, Any]) -> Conv:
     return conv
 
 
+def parse_responses(body: Dict[str, Any]) -> Conv:
+    """OpenAI Responses API request -> Conv."""
+    inp = body.get("input")
+    conv = Conv(system=str(body.get("instructions") or ""))
+    if isinstance(inp, str):
+        items: List[Any] = [{"role": "user", "content": inp}]
+    elif isinstance(inp, list) and inp:
+        items = inp
+    else:
+        raise BadRequest("'input' must be a string or a non-empty array of items")
+    trailing: List[str] = []
+    for it in items:
+        if not isinstance(it, dict):
+            raise BadRequest("input items must be objects")
+        kind = it.get("type", "message")
+        if kind == "function_call_output":
+            trailing.append(_text_of(it.get("output")))
+            continue
+        if kind == "function_call":
+            conv.turns.append(("assistant", f"{it.get('name')}({it.get('arguments')})"))
+        elif kind == "message":
+            role = it.get("role")
+            if role not in ("system", "developer", "user", "assistant"):
+                raise BadRequest(f"Invalid role: {role!r}")
+            text = _text_of(it.get("content"))
+            if role in ("system", "developer"):
+                conv.system += "\n" + text
+            else:
+                conv.turns.append((role, text))
+        else:
+            raise BadRequest(f"unsupported input item type {kind!r}")
+        trailing = []
+    conv.tool_results = trailing
+    for t in body.get("tools") or []:
+        if isinstance(t, dict) and t.get("type") == "function" and t.get("name"):
+            conv.tools.append({"name": t["name"], "schema": t.get("parameters") or {}})
+    tc = body.get("tool_choice", "auto")
+    if isinstance(tc, dict):
+        conv.tool_choice = ("named", tc.get("name") or "")
+    elif tc in ("none", "auto", "required"):
+        conv.tool_choice = tc
+    conv.max_tokens = body.get("max_output_tokens")
+    if "parallel_tool_calls" in body:
+        conv.parallel_tool_calls = bool(body.get("parallel_tool_calls"))
+    return conv
+
+
 def parse_anthropic(body: Dict[str, Any]) -> Conv:
     msgs = body.get("messages")
     if not isinstance(msgs, list) or not msgs:
@@ -321,6 +370,15 @@ class MockServer(ThreadingHTTPServer):
         self.verbose = verbose
         self.lock = threading.Lock()
         self.request_count = 0
+        self.tool_turns = 0
+
+    def flaky_leak(self) -> bool:
+        """flaky_tools: alternate good and leaked tool calls, starting good."""
+        if "flaky_tools" not in self.defects:
+            return False
+        with self.lock:
+            self.tool_turns += 1
+            return self.tool_turns % 2 == 0
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -399,6 +457,8 @@ class Handler(BaseHTTPRequestHandler):
             return self.chat()
         if path == "/messages":
             return self.messages()
+        if path == "/responses":
+            return self.responses_api()
         return self._send_json(404, {"error": {"message": f"Unknown path {self.path}", "type": "not_found"}})
 
     # -- OpenAI
@@ -424,7 +484,7 @@ class Handler(BaseHTTPRequestHandler):
             return self.chat_stream(body, reply, prompt_toks)
         calls = [self._openai_call(n, a) for n, a in reply.calls]
         msg: Dict[str, Any] = {"role": "assistant", "content": None if calls else reply.text}
-        if calls and "leak_tool_calls" in d:
+        if calls and ("leak_tool_calls" in d or self.server.flaky_leak()):
             msg = {"role": "assistant", "content": self._leak_text(reply.calls)}
             reply.finish, calls = "stop", []
         if calls:
@@ -491,6 +551,82 @@ class Handler(BaseHTTPRequestHandler):
         if (body.get("stream_options") or {}).get("include_usage") and "no_usage" not in d:
             self._sse({**base, "choices": [], "usage": self._usage(prompt_toks, r)})
         self._sse("[DONE]")
+
+    # -- OpenAI Responses API
+    def responses_api(self) -> None:
+        d = self.server.defects
+        if "no_responses" in d:
+            return self._send_json(404, {"error": {"message": "Not Found", "type": "not_found"}})
+        if not self._authorized():
+            return self._send_json(401, {"error": {"message": "Invalid API key", "type": "authentication_error", "code": "invalid_api_key"}})
+        body = self._body()
+        if body is None:
+            return self._send_json(400, {"error": {"message": "Request body is not valid JSON", "type": "invalid_request_error"}})
+        model = body.get("model")
+        if model not in self.server.models and "bad_errors" not in d:
+            return self._send_json(404, {"error": {"message": f"The model `{model}` does not exist", "type": "invalid_request_error", "code": "model_not_found"}})
+        try:
+            conv = parse_responses(body)
+        except BadRequest as e:
+            if "bad_errors" in d:
+                return self._send_text(500, "Internal Server Error")
+            return self._send_json(400, {"error": {"message": str(e), "type": "invalid_request_error"}})
+        r = decide(conv, d)
+        in_toks = len(tokens(conv.all_text()))
+        out_toks = self._usage(0, r)["completion_tokens"]
+        rid = "resp_" + uuid.uuid4().hex[:12]
+        leak = bool(r.calls) and (("stream_tool_leak" if body.get("stream") else "leak_tool_calls") in d
+                                  or (not body.get("stream") and self.server.flaky_leak()))
+        text = self._leak_text(r.calls) if leak else r.text
+        calls = [] if leak else r.calls
+        output: List[Dict[str, Any]] = []
+        if r.reasoning:
+            output.append({"type": "reasoning", "id": "rs_" + uuid.uuid4().hex[:10],
+                           "summary": [{"type": "summary_text", "text": r.reasoning}]})
+        if text or not calls:
+            output.append({"type": "message", "id": "msg_" + uuid.uuid4().hex[:10], "status": "completed", "role": "assistant",
+                           "content": [{"type": "output_text", "text": text, "annotations": []}]})
+        for n, a in calls:
+            output.append({"type": "function_call", "id": "fc_" + uuid.uuid4().hex[:10], "call_id": "call_" + uuid.uuid4().hex[:10],
+                           "name": n, "arguments": json.dumps(a), "status": "completed"})
+        resp: Dict[str, Any] = {"id": rid, "object": "response", "created_at": int(time.time()), "status": "completed",
+                                "model": model, "output": output, "parallel_tool_calls": conv.parallel_tool_calls is not False}
+        if "no_usage" not in d:
+            resp["usage"] = {"input_tokens": in_toks, "output_tokens": out_toks, "total_tokens": in_toks + out_toks}
+        if not body.get("stream"):
+            time.sleep(self.server.ttft)
+            return self._send_json(200, resp)
+        self._start_sse()
+        seq = iter(range(1, 1_000_000))
+
+        def ev(kind: str, **data: Any) -> None:
+            self._sse({"type": kind, "sequence_number": next(seq), **data}, kind)
+
+        ev("response.created", response={**resp, "status": "in_progress", "output": [], "usage": None})
+        ev("response.in_progress", response={**resp, "status": "in_progress", "output": [], "usage": None})
+        time.sleep(self.server.ttft)
+        for idx, item in enumerate(output):
+            if item["type"] == "message":
+                ev("response.output_item.added", output_index=idx, item={**item, "status": "in_progress", "content": []})
+                part = {"type": "output_text", "text": "", "annotations": []}
+                ev("response.content_part.added", item_id=item["id"], output_index=idx, content_index=0, part=part)
+                for tok in tokens(item["content"][0]["text"]):
+                    ev("response.output_text.delta", item_id=item["id"], output_index=idx, content_index=0, delta=tok)
+                    time.sleep(self.server.tok_delay)
+                ev("response.output_text.done", item_id=item["id"], output_index=idx, content_index=0, text=item["content"][0]["text"])
+                ev("response.content_part.done", item_id=item["id"], output_index=idx, content_index=0, part=item["content"][0])
+            elif item["type"] == "function_call":
+                ev("response.output_item.added", output_index=idx, item={**item, "arguments": "", "status": "in_progress"})
+                arg = item["arguments"]
+                step = max(1, len(arg) // 3)
+                for j in range(0, len(arg), step):
+                    ev("response.function_call_arguments.delta", item_id=item["id"], output_index=idx, delta=arg[j : j + step])
+                    time.sleep(self.server.tok_delay)
+                ev("response.function_call_arguments.done", item_id=item["id"], output_index=idx, arguments=arg)
+            else:
+                ev("response.output_item.added", output_index=idx, item=item)
+            ev("response.output_item.done", output_index=idx, item=item)
+        ev("response.completed", response=resp)
 
     # -- Anthropic
     def messages(self) -> None:

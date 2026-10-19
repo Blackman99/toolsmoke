@@ -9,7 +9,7 @@ import threading
 from typing import List, Optional
 
 from . import __version__
-from .core import REGISTRY, Config, Ctx, exit_code, run_probe, select
+from .core import REGISTRY, Config, Ctx, exit_code, run_repeated, select
 from . import probes as _probes  # noqa: F401  (registers probes)
 from .client import TransportError
 from .report import markdown, table, to_json_text
@@ -19,6 +19,8 @@ EPILOG = """examples:
   toolsmoke --preset ollama --model llama3.1
   OPENAI_API_KEY=sk-... toolsmoke --base-url https://api.example.com/v1 --model my-model --anthropic
   toolsmoke --base-url http://localhost:11434/v1 --model llama3.1 --only 'tools.*' --json report.json
+  toolsmoke --base-url http://localhost:8000/v1 --model qwen3 --responses   # also /v1/responses (Agents SDK, Codex)
+  toolsmoke --base-url http://localhost:8080/v1 --model qwen --only 'tools.*' --repeat 5   # flaky tool calls?
   toolsmoke --demo broken          # try it against the bundled mock server
 
 exit codes: 0 = no failures, 1 = at least one FAIL (or WARN with --strict), 2 = usage/connection error
@@ -46,6 +48,8 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--header", "-H", action="append", default=[], metavar="'K: V'", help="extra HTTP header (repeatable)")
     p.add_argument("--anthropic", action="store_true", default=env("TOOLSMOKE_ANTHROPIC") in ("1", "true", "yes"), help="also probe the Anthropic Messages API (POST /v1/messages)")
     p.add_argument("--anthropic-base-url", default=env("TOOLSMOKE_ANTHROPIC_BASE_URL"), metavar="URL", help="base URL for the Messages API if different (default: --base-url)")
+    p.add_argument("--responses", action="store_true", default=env("TOOLSMOKE_RESPONSES") in ("1", "true", "yes"), help="also probe the OpenAI Responses API (POST /v1/responses, used by the Agents SDK and Codex)")
+    p.add_argument("--repeat", type=int, default=int(env("TOOLSMOKE_REPEAT", 1)), metavar="N", help="run every probe N times; the worst run counts and the detail shows the pass rate (default: 1)")
     p.add_argument("--only", action="append", default=[], metavar="GLOB", help="run only probes whose id or group matches (repeatable), e.g. 'tools.*'")
     p.add_argument("--skip", action="append", default=[], metavar="GLOB", help="skip probes whose id or group matches (repeatable)")
     p.add_argument("--strict", action="store_true", help="treat warnings as failures for the exit code")
@@ -88,6 +92,7 @@ def config_from_args(a: argparse.Namespace) -> Config:
         headers=parse_headers(a.header),
         anthropic=a.anthropic,
         anthropic_base_url=a.anthropic_base_url,
+        responses=a.responses,
         require_reasoning=a.require_reasoning,
         temperature=temp,
         token_param=a.token_param,
@@ -96,6 +101,7 @@ def config_from_args(a: argparse.Namespace) -> Config:
         min_tps=a.min_tps,
         perf_runs=a.perf_runs,
         preset=a.preset,
+        repeat=a.repeat,
     )
 
 
@@ -133,6 +139,11 @@ def main(argv: Optional[List[str]] = None) -> int:
         demo_server, a.base_url = start_demo(a.demo)
         a.model = a.model or "mock-model"
         a.anthropic = True
+        a.responses = True
+
+    if not 1 <= a.repeat <= 100:
+        print("toolsmoke: error: --repeat must be between 1 and 100", file=sys.stderr)
+        return 2
 
     if a.preset and not a.base_url:
         from .presets import default_base_url
@@ -165,10 +176,13 @@ def main(argv: Optional[List[str]] = None) -> int:
     live = not a.quiet and sys.stderr.isatty() and a.format == "table"
     results = []
     for i, p in enumerate(chosen, 1):
-        if live:
-            sys.stderr.write(f"\r\033[K  [{i}/{len(chosen)}] {p.id} …")
-            sys.stderr.flush()
-        results.append(run_probe(p, ctx))
+        def progress(k: int, i: int = i, p=p) -> None:
+            if live:
+                rep = f" (run {k}/{cfg.repeat})" if cfg.repeat > 1 else ""
+                sys.stderr.write(f"\r\033[K  [{i}/{len(chosen)}] {p.id}{rep} …")
+                sys.stderr.flush()
+
+        results.append(run_repeated(p, ctx, cfg.repeat, progress))
     if live:
         sys.stderr.write("\r\033[K")
         sys.stderr.flush()
